@@ -4,6 +4,14 @@ For individual-differences paper
 
 This picture that the vast majority of recent papers provide, that extrapolation is the only live candidate explanation of the FLE, likely has negative consequences for other researchers, including applied researchers that don’t venture deeply into the basic literature. As an illustration of this, we point to a paper by clinical vision researchers that was published in 2025. For this paper, the researchers chose the FLE as a measure of the visual system’s extrapolation ability and concluded that amblyopes have impaired cortical extrapolation processing, on the basis of finding that the FLE was smaller in the amblyopes than in controls (Wang et al., 2025).
 
+## Related literature
+
+### Individual diffs
+
+### Learning
+
+ a reduction in the perceived spatial lag during flash-lag illusion trials over approximately 50 sessions in two macaque monkeys ([Subramaniyan et al., 2013](https://doi.org/10.1371/journal.pone.0058788))
+
 ## Getting/checking the data of the largest study to date, Tim Cottier et al. JoV
 
 On 18 December I went through all the below of Tim's OSF posting of the JoV data, but I think he's fixed it all since
