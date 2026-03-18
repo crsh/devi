@@ -1,5 +1,8 @@
 Tim re-did the analyses after I spotted some errors and the [OSF site](https://osf.io/s4aqg/overview) has been updated.
 
+Currently (19 Mar 2026), the raw data is not online. Instead, the most raw format is the MAT files, which calculates for each person for each of their two sessions the magnitude of their illusion. Tim says there remains a few discrepancies between the original MAT files and the CSV on OSF which is a couple participants that unexplainedly don't show up in the CSV.
+
+
 Exclusion of participants was done at the illusion level (animations [here](https://tcottier96.github.io). There's different criteria listed in the paper for each illusion, which are correct. For the factor analysis, done in JASP, it was done both ways, any participant missing any illusion was completely excluded (list-wise exclusion) or just excluded for the relevant pairs (pair-wise exclusion).
 
 Each illusion has at least 4 staircases, you run participant for fixed time, e.g. 160 trials, average over the last X trials for each staircase.  Never fit psychometric function for those illusions where staircases were used, just use 
