@@ -9,6 +9,12 @@ Each illusion has at least 4 staircases, you run participant for fixed time, e.g
 
 Flash-grab effect, MIPS, and FJ do not have staircases, because they're using mouse or keyboard to adjust the stimulus.
 
+MIPS: dva  (in the .MAT file)
+FGE: arc-length distance in dva (in the .MAT file)
+FJ: dva  likely (in the .MAT file) , Psychopy stuttered some so somewhat dodgy for temporal imprecision. 
+
+waitBlanking was off for all the sessions and didn't check for whether any frames were too short
+
 RT is also in the raw data.
 
 Frohlich is always judgment relative to vertical (staircase sets the starting orientation on each trial). In flash-lag the bar flashes at a random orientation rather than always being at vertical.
