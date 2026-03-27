@@ -12,6 +12,13 @@ This picture that the vast majority of recent papers provide, that extrapolation
 
  a reduction in the perceived spatial lag during flash-lag illusion trials over approximately 50 sessions in two macaque monkeys ([Subramaniyan et al., 2013](https://doi.org/10.1371/journal.pone.0058788))
 
+" the control
+and experimental groups experienced a reduction in the FLE from Stage 1 to Stage 3, quantified
+by identical improvements of -0.73 (Table 1). Although there were no significant differences in
+FLE reduction between groups, an overall reduction in the FLE was detected by the medium to
+large training effect calculated when combining all participants’ observations (Cohen’s d = 0.60,
+p = 0.0081)." [thesis](https://www.researchgate.net/profile/Matthew-Streitman/publication/391050319_Reducing_the_Flash-Lag_Effect_Through_Visual_Rehearsal_Implications_for_Visual_Training_in_Athletes/links/68090360bd3f1930dd633fd2/Reducing-the-Flash-Lag-Effect-Through-Visual-Rehearsal-Implications-for-Visual-Training-in-Athletes.pdf)
+
 ## Getting/checking the data of the largest study to date, Tim Cottier et al. JoV
 
 On 18 December I went through all the below of Tim's OSF posting of the JoV data, but I think he's fixed it all since
