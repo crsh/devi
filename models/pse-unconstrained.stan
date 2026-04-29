@@ -34,7 +34,7 @@ transformed parameters {
 
 model {
   // Priors
-  target += normal_lpdf(mu_theta_hat | mu_theta, mu_theta_sd);
+  target += normal_lpdf(mu_theta_hat | mu_theta_mean, mu_theta_sd);
   target += normal_lpdf(p_hat_negative_theta | pi_mean, pi_sd);
   target += normal_lpdf(theta | mu_theta, sigma_theta);
 
