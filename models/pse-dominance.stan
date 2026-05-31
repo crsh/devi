@@ -22,7 +22,7 @@ parameters {
 
 transformed parameters {
   real mu_theta = exp(mu_theta_hat);         // prior log normal distributed
-  real sigma_theta = exp(sigma_theta_hat);   // prior log normal distributed
+  real <lower = 0> sigma_theta = exp(sigma_theta_hat);   // prior log normal distributed
 }
 
 

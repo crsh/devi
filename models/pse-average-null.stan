@@ -18,7 +18,7 @@ parameters {
 }
 
 transformed parameters {
-  real sigma_theta = exp(sigma_theta_hat);  // prior log normal distributed
+  real <lower = 0> sigma_theta = exp(sigma_theta_hat);  // prior log normal distributed
 }
 
 
