@@ -1,0 +1,1765 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.42">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Frederik Aust">
+<meta name="author" content="Alex Holcombe">
+<meta name="dcterms.date" content="2026-06-01">
+
+<title>Inidividual Differences Investigation for Flash Lag Effect</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="flash-lag-effect-extended_files/libs/clipboard/clipboard.min.js"></script>
+<script src="flash-lag-effect-extended_files/libs/quarto-html/quarto.js"></script>
+<script src="flash-lag-effect-extended_files/libs/quarto-html/popper.min.js"></script>
+<script src="flash-lag-effect-extended_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="flash-lag-effect-extended_files/libs/quarto-html/anchor.min.js"></script>
+<link href="flash-lag-effect-extended_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="flash-lag-effect-extended_files/libs/quarto-html/quarto-syntax-highlighting-de84f8d6bb715db06a919283c2d1e787.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="flash-lag-effect-extended_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="flash-lag-effect-extended_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="flash-lag-effect-extended_files/libs/bootstrap/bootstrap-c0a743a82464aa71dbd8ed24f777bb62.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#bayesian-hierarchical-model" id="toc-bayesian-hierarchical-model" class="nav-link active" data-scroll-target="#bayesian-hierarchical-model">Bayesian Hierarchical Model</a>
+  <ul class="collapse">
+  <li><a href="#prior-distributions" id="toc-prior-distributions" class="nav-link" data-scroll-target="#prior-distributions">Prior distributions</a></li>
+  <li><a href="#model-estimation" id="toc-model-estimation" class="nav-link" data-scroll-target="#model-estimation">Model estimation</a></li>
+  <li><a href="#bayes-factor-approximations" id="toc-bayes-factor-approximations" class="nav-link" data-scroll-target="#bayes-factor-approximations">Bayes factor approximations</a></li>
+  </ul></li>
+  <li><a href="#stochastic-dominance-analysis" id="toc-stochastic-dominance-analysis" class="nav-link" data-scroll-target="#stochastic-dominance-analysis">Stochastic dominance analysis (?)</a>
+  <ul class="collapse">
+  <li><a href="#dominance-vs-unconstrained" id="toc-dominance-vs-unconstrained" class="nav-link" data-scroll-target="#dominance-vs-unconstrained">(1) Dominance vs unconstrained</a></li>
+  <li><a href="#common-vs-unconstrained" id="toc-common-vs-unconstrained" class="nav-link" data-scroll-target="#common-vs-unconstrained">(2) Common vs unconstrained</a></li>
+  <li><a href="#average-null-vs-unconstrained" id="toc-average-null-vs-unconstrained" class="nav-link" data-scroll-target="#average-null-vs-unconstrained">(3) Average null vs unconstrained</a></li>
+  <li><a href="#null-vs-unconstrained" id="toc-null-vs-unconstrained" class="nav-link" data-scroll-target="#null-vs-unconstrained">(4) Null vs unconstrained</a></li>
+  </ul></li>
+  <li><a href="#bayesian-model-comparison" id="toc-bayesian-model-comparison" class="nav-link" data-scroll-target="#bayesian-model-comparison">Bayesian model comparison</a>
+  <ul class="collapse">
+  <li><a href="#bayes-factor-summary-table" id="toc-bayes-factor-summary-table" class="nav-link" data-scroll-target="#bayes-factor-summary-table">Bayes factor summary table</a></li>
+  <li><a href="#prior-settings-for-sigma_theta" id="toc-prior-settings-for-sigma_theta" class="nav-link" data-scroll-target="#prior-settings-for-sigma_theta">Prior settings for <span class="math inline">\(\sigma_{\theta}\)</span></a></li>
+  </ul></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Inidividual Differences Investigation for Flash Lag Effect</h1>
+</div>
+
+
+<div class="quarto-title-meta-author">
+  <div class="quarto-title-meta-heading">Authors</div>
+  <div class="quarto-title-meta-heading">Affiliations</div>
+  
+    <div class="quarto-title-meta-contents">
+    <p class="author">Frederik Aust <a href="mailto:frederik.aust@uni-koeln.de" class="quarto-title-author-email"><i class="bi bi-envelope"></i></a> <a href="https://orcid.org/0000-0003-4900-788X" class="quarto-title-author-orcid"> <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1N0NEMjA4MDI1MjA2ODExOTk0QzkzNTEzRjZEQTg1NyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDozM0NDOEJGNEZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDozM0NDOEJGM0ZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkZDN0YxMTc0MDcyMDY4MTE5NUZFRDc5MUM2MUUwNEREIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjU3Q0QyMDgwMjUyMDY4MTE5OTRDOTM1MTNGNkRBODU3Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+84NovQAAAR1JREFUeNpiZEADy85ZJgCpeCB2QJM6AMQLo4yOL0AWZETSqACk1gOxAQN+cAGIA4EGPQBxmJA0nwdpjjQ8xqArmczw5tMHXAaALDgP1QMxAGqzAAPxQACqh4ER6uf5MBlkm0X4EGayMfMw/Pr7Bd2gRBZogMFBrv01hisv5jLsv9nLAPIOMnjy8RDDyYctyAbFM2EJbRQw+aAWw/LzVgx7b+cwCHKqMhjJFCBLOzAR6+lXX84xnHjYyqAo5IUizkRCwIENQQckGSDGY4TVgAPEaraQr2a4/24bSuoExcJCfAEJihXkWDj3ZAKy9EJGaEo8T0QSxkjSwORsCAuDQCD+QILmD1A9kECEZgxDaEZhICIzGcIyEyOl2RkgwAAhkmC+eAm0TAAAAABJRU5ErkJggg=="></a></p>
+  </div>
+  <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            University of Cologne
+          </p>
+      </div>
+    <div class="quarto-title-meta-contents">
+    <p class="author">Alex Holcombe <a href="https://orcid.org/0000-0003-2869-0085" class="quarto-title-author-orcid"> <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1N0NEMjA4MDI1MjA2ODExOTk0QzkzNTEzRjZEQTg1NyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDozM0NDOEJGNEZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDozM0NDOEJGM0ZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkZDN0YxMTc0MDcyMDY4MTE5NUZFRDc5MUM2MUUwNEREIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjU3Q0QyMDgwMjUyMDY4MTE5OTRDOTM1MTNGNkRBODU3Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+84NovQAAAR1JREFUeNpiZEADy85ZJgCpeCB2QJM6AMQLo4yOL0AWZETSqACk1gOxAQN+cAGIA4EGPQBxmJA0nwdpjjQ8xqArmczw5tMHXAaALDgP1QMxAGqzAAPxQACqh4ER6uf5MBlkm0X4EGayMfMw/Pr7Bd2gRBZogMFBrv01hisv5jLsv9nLAPIOMnjy8RDDyYctyAbFM2EJbRQw+aAWw/LzVgx7b+cwCHKqMhjJFCBLOzAR6+lXX84xnHjYyqAo5IUizkRCwIENQQckGSDGY4TVgAPEaraQr2a4/24bSuoExcJCfAEJihXkWDj3ZAKy9EJGaEo8T0QSxkjSwORsCAuDQCD+QILmD1A9kECEZgxDaEZhICIzGcIyEyOl2RkgwAAhkmC+eAm0TAAAAABJRU5ErkJggg=="></a></p>
+  </div>
+  <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            University of Sydney
+          </p>
+      </div>
+  </div>
+
+<div class="quarto-title-meta">
+
+      
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">June 1, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>fle_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"./publishedMotnPostnDataToLoad/myOverallJoV_readyForQualitativeTest.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>For this analysis, we need multiple observations per participant to partition the observed variance in degrees of visual angle (<code>dva</code>) into true individual differences <span class="math inline">\(\sigma_\theta\)</span> and error variance <span class="math inline">\(\sigma_\epsilon\)</span>, i.e.&nbsp;variance between observations within a participant. Hence, we collapse the data across the two sessions and estimate an overall mean (<code>(Intercept)</code>, <span class="math inline">\(\mu_\theta\)</span>) and individual differences around this mean for each participant (random effect <code>ID</code>, <span class="math inline">\(\sigma_\theta\)</span>).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>fle_lmer <span class="ot">&lt;-</span> <span class="fu">lmer</span>(dva <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> ID), <span class="at">data =</span> fle_data)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fle_lmer)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: dva ~ 1 + (1 | ID)
+   Data: fle_data
+
+REML criterion at convergence: 649.2
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-2.8348 -0.3584 -0.0392  0.4377  3.3681 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ ID       (Intercept) 2.617    1.618   
+ Residual             1.114    1.055   
+Number of obs: 170, groups:  ID, 85
+
+Fixed effects:
+            Estimate Std. Error      df t value Pr(&gt;|t|)    
+(Intercept)   1.6971     0.1932 84.0000   8.782 1.63e-13 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<p>Based on the assumption of a normal distribution of individual differences <span class="math inline">\(\theta_i \sim \mathcal{N}(\mu_\theta, \sigma_\theta)\)</span>, we can compute the proportion of participants with truely negative effects <span class="math inline">\(p(\theta_i&lt;0)\)</span> as follows:</p>
+<p><span class="math display">\[
+p(\theta_i&lt;0) = \Phi\left(\frac{- \mu_\theta}{\sigma_\theta}\right)
+\]</span></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>mle_p_negative <span class="ot">&lt;-</span> <span class="fu">pnorm</span>(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">q =</span> <span class="dv">0</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  , <span class="at">mean =</span> <span class="fu">fixef</span>(fle_lmer)[<span class="dv">1</span>]</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  , <span class="at">sd =</span> <span class="fu">attr</span>(<span class="fu">VarCorr</span>(fle_lmer)<span class="sc">$</span>ID, <span class="st">"stddev"</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>mle_p_negative</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.1470737</code></pre>
+</div>
+</div>
+<p>To test whether this proportion is credibly greater than zero, we will fit a Bayesian hierarchical model next.</p>
+<section id="bayesian-hierarchical-model" class="level1">
+<h1>Bayesian Hierarchical Model</h1>
+<p>Following the standard hierarchical model structure for individual differences, we define the following model:</p>
+<p><span class="math display">\[
+\begin{aligned}
+y_{ij} &amp; \sim \mathcal{N}(\theta_i, \sigma_\epsilon) \\
+\theta_i &amp; \sim \mathcal{N}(\mu_\theta, \sigma_\theta) \\ \\
+\mu_\theta &amp; \sim \log \mathcal{N}(a_\mu, b_\mu) \\ \\
+\sigma_\theta &amp; = -\mu_\theta / \Phi^{-1}(0.5 \; p(\theta_i&lt;0)) \\
+p(\theta_i&lt;0) &amp; = \Phi(p^{*}_{\theta_i&lt;0}) \\
+p^{*}(\theta_i&lt;0) &amp; \sim \mathcal{N}(a_p, b_p) \\ \\
+\sigma_\epsilon^2 &amp; \propto 1/\sigma_\epsilon^2
+\end{aligned}
+\]</span></p>
+<p>We place a log-normal prior on the group mean <span class="math inline">\(\mu_\theta\)</span> to ensure positive values (but we could replace this by something more flexible). We parameterize the individual differences standard deviation <span class="math inline">\(\sigma_\theta\)</span> in terms of the proportion of individuals that show a negative flash lag effect (i.e., a flash <em>lead</em> effect) <span class="math inline">\(p(\theta_i&lt;0)\)</span> to directly estimate this quantity of interest. To improve sampling efficiency, we place a normal prior on the probit-transformed quantity <span class="math inline">\(p^{*}(\theta_i&lt;0)\)</span>. Finally, we place a non-informative prior on the error variance <span class="math inline">\(\sigma_\epsilon^2\)</span>.</p>
+<section id="prior-distributions" class="level2">
+<h2 class="anchored" data-anchor-id="prior-distributions">Prior distributions</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>p_negative_prior <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="fl">1e5</span>, <span class="at">mean =</span> <span class="sc">-</span><span class="dv">2</span><span class="sc">/</span><span class="dv">3</span>, <span class="at">sd =</span> <span class="dv">2</span><span class="sc">/</span><span class="dv">3</span>) <span class="sc">|&gt;</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pnorm</span>(<span class="dv">0</span>) <span class="sc">|&gt;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  (\(x) x <span class="sc">/</span> <span class="dv">2</span>)()</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>p_negative_prior <span class="sc">|&gt;</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  logspline<span class="sc">::</span><span class="fu">logspline</span>(<span class="at">lbound =</span> <span class="dv">0</span>, <span class="at">ubound =</span> <span class="fl">0.5</span>) <span class="sc">|&gt;</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  (</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    \(fit) {</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>      <span class="fu">curve</span>(</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>        logspline<span class="sc">::</span><span class="fu">dlogspline</span>(x, fit)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>        , <span class="at">from =</span> <span class="dv">0</span>, <span class="at">to =</span> <span class="fl">0.5</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>        , <span class="at">lwd =</span> <span class="dv">2</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>        , <span class="at">xlab =</span> <span class="fu">expression</span>(p[theta[i] <span class="sc">&lt;</span> <span class="dv">0</span>])</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>        , <span class="at">ylab =</span> <span class="st">"Density"</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>        , <span class="at">las =</span> <span class="dv">1</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>        , <span class="at">n =</span> <span class="dv">1001</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  )()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="flash-lag-effect-extended_files/figure-html/plot-prior-pse-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">curve</span>(</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dlnorm</span>(x, <span class="at">meanlog =</span> <span class="fl">0.5</span>, <span class="at">sdlog =</span> <span class="dv">1</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  , <span class="at">from =</span> <span class="dv">0</span>, <span class="at">to =</span> <span class="dv">5</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  , <span class="at">lwd =</span> <span class="dv">2</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  , <span class="at">xlab =</span> <span class="fu">expression</span>(mu[theta])</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  , <span class="at">ylab =</span> <span class="st">"Density"</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  , <span class="at">las =</span> <span class="dv">1</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  , <span class="at">n =</span> <span class="dv">1001</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="flash-lag-effect-extended_files/figure-html/plot-prior-pse-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>mu_prior <span class="ot">&lt;-</span> <span class="fu">rlnorm</span>(<span class="fl">1e5</span>, <span class="at">meanlog =</span> <span class="fl">0.5</span>, <span class="at">sdlog =</span> <span class="dv">1</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>sigma_prior <span class="ot">&lt;-</span> <span class="sc">-</span>mu_prior <span class="sc">/</span> <span class="fu">qnorm</span>(p_negative_prior)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>sigma_prior <span class="sc">|&gt;</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  logspline<span class="sc">::</span><span class="fu">logspline</span>(<span class="at">lbound =</span> <span class="dv">0</span>) <span class="sc">|&gt;</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  (</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    \(fit) {</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>      <span class="fu">curve</span>(</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>        logspline<span class="sc">::</span><span class="fu">dlogspline</span>(x, fit)</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>        , <span class="at">from =</span> <span class="dv">0</span>, <span class="at">to =</span> <span class="dv">5</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>        , <span class="at">lwd =</span> <span class="dv">2</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>        , <span class="at">xlab =</span> <span class="fu">expression</span>(sigma[theta])</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>        , <span class="at">ylab =</span> <span class="st">"Density"</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>        , <span class="at">las =</span> <span class="dv">1</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>        , <span class="at">n =</span> <span class="dv">1001</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>  )()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="flash-lag-effect-extended_files/figure-html/plot-prior-pse-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>unconstrained_joint_prior <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">mu =</span> mu_prior, <span class="at">sigma =</span> sigma_prior, <span class="at">p_negative =</span> p_negative_prior) <span class="sc">|&gt;</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">x =</span> mu, <span class="at">y =</span> sigma, <span class="at">color =</span> p_negative) <span class="sc">+</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">stat_density_2d</span>(<span class="at">color =</span> <span class="st">"white"</span>, <span class="at">bins =</span> <span class="dv">10</span>) <span class="sc">+</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_abline</span>(<span class="at">intercept =</span> <span class="dv">0</span>, <span class="at">slope =</span> <span class="dv">1</span>, <span class="at">color =</span> <span class="st">"white"</span>, <span class="at">linetype =</span> <span class="st">"22"</span>) <span class="sc">+</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># annotate("point", x = fixef(fle_lmer)[1], y = attr(VarCorr(fle_lmer)$ID, "stddev"), shape = 21, color = "black", fill = "white", size = 5) +</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>      <span class="at">x =</span> <span class="fu">expression</span>(mu[theta])</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>      , <span class="at">y =</span> <span class="fu">expression</span>(sigma[theta])</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>      , <span class="at">color =</span> <span class="fu">expression</span>(<span class="fu">p</span>(theta[i] <span class="sc">&lt;</span> <span class="dv">0</span>))</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_color_viridis_c</span>(<span class="at">option =</span> <span class="st">"C"</span>, <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.5</span>)) <span class="sc">+</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">lims</span>(<span class="at">x =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">5</span>), <span class="at">y =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">5</span>)) <span class="sc">+</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    papaja<span class="sc">::</span><span class="fu">theme_apa</span>(<span class="at">base_size =</span> <span class="dv">16</span>)</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>unconstrained_joint_prior</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 18153 rows containing non-finite outside the scale range
+(`stat_density2d()`).</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 18153 rows containing missing values or values outside the scale range
+(`geom_point()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="flash-lag-effect-extended_files/figure-html/plot-prior-pse-4.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="model-estimation" class="level2">
+<h2 class="anchored" data-anchor-id="model-estimation">Model estimation</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>pse_model <span class="ot">&lt;-</span> <span class="fu">readLines</span>(<span class="st">"./models/pse-unconstrained.stan"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">paste</span>(<span class="at">collapse =</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>fle_stan_data <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">N =</span> <span class="fu">nrow</span>(fle_data) <span class="sc">|&gt;</span> <span class="fu">as.integer</span>()</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  , <span class="at">n_subjects =</span> <span class="fu">length</span>(<span class="fu">unique</span>(fle_data<span class="sc">$</span>ID)) <span class="sc">|&gt;</span> <span class="fu">as.integer</span>()</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  , <span class="at">id =</span> <span class="fu">as.integer</span>(<span class="fu">as.factor</span>(fle_data<span class="sc">$</span>ID))</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  , <span class="at">y =</span> fle_data<span class="sc">$</span>dva</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Prior settings</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  , <span class="at">pi_mean =</span> <span class="sc">-</span><span class="dv">2</span><span class="sc">/</span><span class="dv">3</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  , <span class="at">pi_sd =</span> <span class="dv">2</span><span class="sc">/</span><span class="dv">3</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>  , <span class="at">mu_theta_mean =</span> <span class="fl">0.5</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>  , <span class="at">mu_theta_sd =</span> <span class="dv">1</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>fle_bayes <span class="ot">&lt;-</span> rstan<span class="sc">::</span><span class="fu">stan</span>(</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">model_code =</span> pse_model</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>  , <span class="at">data =</span> fle_stan_data</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>  , <span class="at">iter =</span> <span class="fl">1e5</span><span class="sc">/</span><span class="dv">4</span> <span class="sc">+</span> <span class="dv">1000</span></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>  , <span class="at">warmup =</span> <span class="dv">1000</span></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>  , <span class="at">chains =</span> <span class="dv">4</span></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>  , <span class="at">cores =</span> <span class="dv">4</span></span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>  , <span class="at">seed =</span> <span class="dv">123</span></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>WARNING: Rtools is required to build R packages, but is not currently installed.
+
+Please download and install the appropriate version of Rtools for 4.5.1 from
+https://cran.r-project.org/bin/windows/Rtools/.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Trying to compile a simple C file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Running "C:/PROGRA~1/R/R-45~1.1/bin/x64/Rcmd.exe" SHLIB foo.c
+using C compiler: 'gcc.exe (GCC) 14.3.0'
+gcc  -I"C:/PROGRA~1/R/R-45~1.1/include" -DNDEBUG   -I"C:/Users/User/AppData/Local/R/win-library/4.5/Rcpp/include/"  -I"C:/Users/User/AppData/Local/R/win-library/4.5/RcppEigen/include/"  -I"C:/Users/User/AppData/Local/R/win-library/4.5/RcppEigen/include/unsupported"  -I"C:/Users/User/AppData/Local/R/win-library/4.5/BH/include" -I"C:/Users/User/AppData/Local/R/win-library/4.5/StanHeaders/include/src/"  -I"C:/Users/User/AppData/Local/R/win-library/4.5/StanHeaders/include/"  -I"C:/Users/User/AppData/Local/R/win-library/4.5/RcppParallel/include/" -DRCPP_PARALLEL_USE_TBB=1 -I"C:/Users/User/AppData/Local/R/win-library/4.5/rstan/include" -DEIGEN_NO_DEBUG  -DBOOST_DISABLE_ASSERTS  -DBOOST_PENDING_INTEGER_LOG2_HPP  -DSTAN_THREADS  -DUSE_STANC3 -DSTRICT_R_HEADERS  -DBOOST_PHOENIX_NO_VARIADIC_EXPRESSION  -D_HAS_AUTO_PTR_ETC=0  -include "C:/Users/User/AppData/Local/R/win-library/4.5/StanHeaders/include/stan/math/prim/fun/Eigen.hpp"  -D_REENTRANT -DRCPP_PARALLEL_USE_TBB=1    -I"C:/rtools45/x86_64-w64-mingw32.static.posix/include"      -O2 -Wall -std=gnu2x  -mfpmath=sse -msse2 -mstackrealign   -c foo.c -o foo.o
+In file included from &lt;command-line&gt;:
+C:/Users/User/AppData/Local/R/win-library/4.5/StanHeaders/include/stan/math/prim/fun/Eigen.hpp:3:10: fatal error: stdexcept: No such file or directory
+    3 | #include &lt;stdexcept&gt;
+      |          ^~~~~~~~~~~
+compilation terminated.
+make: *** [C:/PROGRA~1/R/R-45~1.1/etc/x64/Makeconf:289: foo.o] Error 1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>WARNING: Rtools is required to build R packages, but is not currently installed.
+
+Please download and install the appropriate version of Rtools for 4.5.1 from
+https://cran.r-project.org/bin/windows/Rtools/.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># model diagnostics</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>str_post_unconstrained <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">summary</span>(fle_bayes)<span class="sc">$</span>summary)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="fu">check_hmc_diagnostics</span>(fle_bayes)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Divergences:</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>0 of 100000 iterations ended with a divergence.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Tree depth:</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>0 of 100000 iterations saturated the maximum tree depth of 10.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Energy:</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>E-BFMI indicated no pathological behavior.</code></pre>
+</div>
+</div>
+<p><a href="#tbl-compare-estimates" class="quarto-xref">Table&nbsp;1</a> shows the close agreement between the posterior means of the parameter estimates to the point estimates from the (restricted) maximum likelihood estimation via <code>lmer()</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">parameter =</span> <span class="fu">c</span>(<span class="st">"mu_theta"</span>, <span class="st">"sigma_theta"</span>, <span class="st">"sigma_epsilon"</span>, <span class="st">"p_negative_theta"</span>)</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  , <span class="at">bayes =</span> fle_bayes <span class="sc">|&gt;</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summary</span>(<span class="at">pars =</span> <span class="fu">c</span>(<span class="st">"mu_theta"</span>, <span class="st">"sigma_theta"</span>, <span class="st">"sigma_epsilon"</span>, <span class="st">"p_negative_theta"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>    (\(x) x<span class="sc">$</span>summary)() <span class="sc">|&gt;</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as.data.frame</span>() <span class="sc">|&gt;</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">pull</span>(<span class="st">"mean"</span>)</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>  , <span class="at">mle =</span> <span class="fu">c</span>(</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">fixef</span>(fle_lmer)[<span class="dv">1</span>],</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">attr</span>(<span class="fu">VarCorr</span>(fle_lmer)<span class="sc">$</span>ID, <span class="st">"stddev"</span>),</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sigma</span>(fle_lmer),</span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>    mle_p_negative</span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="tbl-compare-estimates" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-compare-estimates-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: Comparison of Bayesian posterior means and MLE estimates.
+</figcaption>
+<div aria-describedby="tbl-compare-estimates-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="do-not-create-environment cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">parameter</th>
+<th style="text-align: right;">bayes</th>
+<th style="text-align: right;">mle</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">mu_theta</td>
+<td style="text-align: right;">1.6978188</td>
+<td style="text-align: right;">1.6971440</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">sigma_theta</td>
+<td style="text-align: right;">1.6107703</td>
+<td style="text-align: right;">1.6177653</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">sigma_epsilon</td>
+<td style="text-align: right;">1.0621039</td>
+<td style="text-align: right;">1.0554625</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">p_negative_theta</td>
+<td style="text-align: right;">0.1465823</td>
+<td style="text-align: right;">0.1470737</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>fle_bayes <span class="sc">|&gt;</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summary</span>(<span class="at">pars =</span> <span class="fu">c</span>(<span class="st">"mu_theta"</span>, <span class="st">"sigma_theta"</span>, <span class="st">"sigma_epsilon"</span>, <span class="st">"p_negative_theta"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  (\(x) x<span class="sc">$</span>summary)() <span class="sc">|&gt;</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">as_tibble</span>(<span class="at">rownames =</span> <span class="st">"parameter"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">parameter =</span> <span class="fu">gsub</span>(<span class="st">"mu"</span>, <span class="st">"$</span><span class="sc">\\\\</span><span class="st">mu"</span>, parameter) <span class="sc">|&gt;</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>      <span class="fu">gsub</span>(<span class="st">"sigma"</span>, <span class="st">"$</span><span class="sc">\\\\</span><span class="st">sigma"</span>, <span class="at">x =</span> _) <span class="sc">|&gt;</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>      <span class="fu">gsub</span>(<span class="st">"_(.+)"</span>, <span class="st">"_{</span><span class="sc">\\\\\\</span><span class="st">1}$"</span>, <span class="at">x =</span> _) <span class="sc">|&gt;</span></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>      <span class="fu">gsub</span>(<span class="st">"^p.+"</span>, <span class="st">"$p(</span><span class="sc">\\\\</span><span class="st">theta_i&lt;0)$"</span>, <span class="at">x =</span> _)</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 23%">
+<col style="width: 7%">
+<col style="width: 9%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 11%">
+<col style="width: 5%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">parameter</th>
+<th style="text-align: right;">mean</th>
+<th style="text-align: right;">se_mean</th>
+<th style="text-align: right;">sd</th>
+<th style="text-align: right;">2.5%</th>
+<th style="text-align: right;">25%</th>
+<th style="text-align: right;">50%</th>
+<th style="text-align: right;">75%</th>
+<th style="text-align: right;">97.5%</th>
+<th style="text-align: right;">n_eff</th>
+<th style="text-align: right;">Rhat</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\(\mu_{\theta}\)</span></td>
+<td style="text-align: right;">1.698</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.187</td>
+<td style="text-align: right;">1.333</td>
+<td style="text-align: right;">1.573</td>
+<td style="text-align: right;">1.697</td>
+<td style="text-align: right;">1.822</td>
+<td style="text-align: right;">2.068</td>
+<td style="text-align: right;">155859.50</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\(\sigma_{\theta}\)</span></td>
+<td style="text-align: right;">1.611</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.152</td>
+<td style="text-align: right;">1.334</td>
+<td style="text-align: right;">1.505</td>
+<td style="text-align: right;">1.603</td>
+<td style="text-align: right;">1.708</td>
+<td style="text-align: right;">1.931</td>
+<td style="text-align: right;">116168.11</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\(\sigma_{\epsilon}\)</span></td>
+<td style="text-align: right;">1.062</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.082</td>
+<td style="text-align: right;">0.915</td>
+<td style="text-align: right;">1.004</td>
+<td style="text-align: right;">1.057</td>
+<td style="text-align: right;">1.114</td>
+<td style="text-align: right;">1.239</td>
+<td style="text-align: right;">58798.46</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\(p(\theta_i&lt;0)\)</span></td>
+<td style="text-align: right;">0.147</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.034</td>
+<td style="text-align: right;">0.086</td>
+<td style="text-align: right;">0.123</td>
+<td style="text-align: right;">0.145</td>
+<td style="text-align: right;">0.168</td>
+<td style="text-align: right;">0.218</td>
+<td style="text-align: right;">140043.51</td>
+<td style="text-align: right;">1</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>(tidybayes<span class="sc">::</span><span class="fu">gather_draws</span>(</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  fle_bayes</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  , mu_theta, sigma_theta, p_negative_theta</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">.variable =</span> <span class="fu">factor</span>(</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>      .variable</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>      , <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"mu_theta"</span>, <span class="st">"sigma_theta"</span>, <span class="st">"p_negative_theta"</span>)</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>      , <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"mu[theta]"</span>, <span class="st">"sigma[theta]"</span>, <span class="st">"p(theta[i] &lt; 0)"</span>)</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> .value, <span class="at">fill =</span> <span class="fu">after_stat</span>(level)) <span class="sc">+</span></span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_halfeye</span>(<span class="at">fill_type =</span> <span class="st">"segments"</span>, <span class="at">normalize =</span> <span class="st">"panels"</span>, <span class="at">.width =</span> <span class="fu">c</span>(.<span class="dv">5</span>, .<span class="dv">8</span>, .<span class="dv">95</span>, .<span class="dv">99</span>, <span class="dv">1</span>), <span class="at">slab_color =</span> <span class="st">"black"</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>, <span class="at">fatten_point =</span> <span class="dv">2</span>, <span class="at">interval_size_range =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>)) <span class="sc">+</span></span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"point"</span>, <span class="at">x =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.5</span>), <span class="at">y =</span> <span class="dv">0</span>, <span class="at">color =</span> <span class="st">"white"</span>) <span class="sc">+</span> </span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_d</span>(<span class="at">option =</span> <span class="st">"B"</span>, <span class="at">begin =</span> <span class="fl">0.9</span>, <span class="at">end =</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">guides</span>(</span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="fu">guide_legend</span>(</span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a>      <span class="at">title =</span> <span class="st">"Credible level"</span></span>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a>      , <span class="at">override.aes =</span> <span class="fu">list</span>(<span class="at">color =</span> <span class="cn">NA</span>)</span>
+<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a>      , <span class="at">reverse =</span> <span class="cn">TRUE</span></span>
+<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a>      , <span class="at">direction =</span> <span class="st">"horizontal"</span></span>
+<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a>      , <span class="at">title.position =</span> <span class="st">"top"</span></span>
+<span id="cb26-24"><a href="#cb26-24" aria-hidden="true" tabindex="-1"></a>      , <span class="at">title.hjust =</span> <span class="fl">0.5</span></span>
+<span id="cb26-25"><a href="#cb26-25" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb26-26"><a href="#cb26-26" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb26-27"><a href="#cb26-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">ylim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.05</span>, <span class="cn">NA</span>)) <span class="sc">+</span></span>
+<span id="cb26-28"><a href="#cb26-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(</span>
+<span id="cb26-29"><a href="#cb26-29" aria-hidden="true" tabindex="-1"></a>    <span class="sc">~</span> .variable</span>
+<span id="cb26-30"><a href="#cb26-30" aria-hidden="true" tabindex="-1"></a>    , <span class="at">scales =</span> <span class="st">"free"</span></span>
+<span id="cb26-31"><a href="#cb26-31" aria-hidden="true" tabindex="-1"></a>    , <span class="at">labeller =</span> label_parsed</span>
+<span id="cb26-32"><a href="#cb26-32" aria-hidden="true" tabindex="-1"></a>    , <span class="at">ncol =</span> <span class="dv">2</span></span>
+<span id="cb26-33"><a href="#cb26-33" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb26-34"><a href="#cb26-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Parameter value"</span>) <span class="sc">+</span></span>
+<span id="cb26-35"><a href="#cb26-35" aria-hidden="true" tabindex="-1"></a>  papaja<span class="sc">::</span><span class="fu">theme_apa</span>(<span class="at">base_size =</span> <span class="dv">16</span>) <span class="sc">+</span></span>
+<span id="cb26-36"><a href="#cb26-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb26-37"><a href="#cb26-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.line.y =</span> <span class="fu">element_blank</span>()</span>
+<span id="cb26-38"><a href="#cb26-38" aria-hidden="true" tabindex="-1"></a>    , <span class="at">axis.ticks.y =</span> <span class="fu">element_blank</span>()</span>
+<span id="cb26-39"><a href="#cb26-39" aria-hidden="true" tabindex="-1"></a>    , <span class="at">axis.text.y =</span> <span class="fu">element_blank</span>()</span>
+<span id="cb26-40"><a href="#cb26-40" aria-hidden="true" tabindex="-1"></a>    , <span class="at">axis.title.y =</span> <span class="fu">element_blank</span>()</span>
+<span id="cb26-41"><a href="#cb26-41" aria-hidden="true" tabindex="-1"></a>    <span class="co"># , legend.title.position = "top"</span></span>
+<span id="cb26-42"><a href="#cb26-42" aria-hidden="true" tabindex="-1"></a>  )) <span class="sc">|&gt;</span></span>
+<span id="cb26-43"><a href="#cb26-43" aria-hidden="true" tabindex="-1"></a>  lemon<span class="sc">::</span><span class="fu">reposition_legend</span>(<span class="st">"center"</span>, <span class="at">panel =</span> <span class="st">'panel-2-2'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div id="fig-posterior-distributions" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-posterior-distributions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="flash-lag-effect-extended_files/figure-html/fig-posterior-distributions-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-posterior-distributions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Posterior distributions for the group mean of individual differences <span class="math inline">\(\mu_{\theta}\)</span>, the standard deviation of individual differences <span class="math inline">\(\sigma_{\theta}\)</span>, and the proportion of participants with a negative flash lag effect <span class="math inline">\(p(\theta_i&lt;0)\)</span>.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="bayes-factor-approximations" class="level2">
+<h2 class="anchored" data-anchor-id="bayes-factor-approximations">Bayes factor approximations</h2>
+<p>Finally, we compute the Bayes factor in favor of the assumption of an unconstrained population distribution (<span class="math inline">\(p(\theta_i&lt;0) &gt; 0\)</span>) over the strictly positive population distribution (stochastic dominance). One approach is to approximate this Bayes factor using the Savage-Dickey density ratio for <span class="math inline">\(p(\theta_i&lt;0) = 0\)</span>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract posterior samples for p_negative_theta</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>p_negative_draws <span class="ot">&lt;-</span> tidybayes<span class="sc">::</span><span class="fu">gather_draws</span>(fle_bayes, p_negative_theta)</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="co"># logspline approximation of posterior density</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>p_negative_draws_ls <span class="ot">&lt;-</span> logspline<span class="sc">::</span><span class="fu">logspline</span>(</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>  p_negative_draws<span class="sc">$</span>.value</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>  , <span class="at">lbound =</span> <span class="dv">0</span>, <span class="at">ubound =</span> <span class="fl">0.5</span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a><span class="co"># logspline approximation of prior density</span></span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>prior_ls <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="fl">1e5</span>, <span class="at">mean =</span> fle_stan_data<span class="sc">$</span>pi_mean, <span class="at">sd =</span> fle_stan_data<span class="sc">$</span>pi_sd) <span class="sc">|&gt;</span></span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pnorm</span>() <span class="sc">|&gt;</span></span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>  (\(x) x <span class="sc">/</span> <span class="dv">2</span>)() <span class="sc">|&gt;</span></span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>  logspline<span class="sc">::</span><span class="fu">logspline</span>(<span class="at">lbound =</span> <span class="dv">0</span>, <span class="at">ubound =</span> <span class="fl">0.5</span>)</span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a>prior_density <span class="ot">&lt;-</span> logspline<span class="sc">::</span><span class="fu">dlogspline</span>(<span class="dv">0</span>, prior_ls)</span>
+<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>posterior_density <span class="ot">&lt;-</span> logspline<span class="sc">::</span><span class="fu">dlogspline</span>(<span class="dv">0</span>, p_negative_draws_ls)</span>
+<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a><span class="fu">curve</span>(</span>
+<span id="cb27-21"><a href="#cb27-21" aria-hidden="true" tabindex="-1"></a>  logspline<span class="sc">::</span><span class="fu">dlogspline</span>(x, p_negative_draws_ls)</span>
+<span id="cb27-22"><a href="#cb27-22" aria-hidden="true" tabindex="-1"></a>  , <span class="at">from =</span> <span class="dv">0</span>, <span class="at">to =</span> <span class="fl">0.5</span></span>
+<span id="cb27-23"><a href="#cb27-23" aria-hidden="true" tabindex="-1"></a>  , <span class="at">col =</span> <span class="st">"black"</span>, <span class="at">lwd =</span> <span class="dv">3</span></span>
+<span id="cb27-24"><a href="#cb27-24" aria-hidden="true" tabindex="-1"></a>  , <span class="at">main =</span> <span class="st">"Posterior Density of P(p_negative_theta)"</span></span>
+<span id="cb27-25"><a href="#cb27-25" aria-hidden="true" tabindex="-1"></a>  , <span class="at">xlab =</span> <span class="st">"p_negative_theta"</span></span>
+<span id="cb27-26"><a href="#cb27-26" aria-hidden="true" tabindex="-1"></a>  , <span class="at">n =</span> <span class="dv">1001</span></span>
+<span id="cb27-27"><a href="#cb27-27" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb27-28"><a href="#cb27-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-29"><a href="#cb27-29" aria-hidden="true" tabindex="-1"></a><span class="fu">curve</span>(</span>
+<span id="cb27-30"><a href="#cb27-30" aria-hidden="true" tabindex="-1"></a>  logspline<span class="sc">::</span><span class="fu">dlogspline</span>(x, prior_ls)</span>
+<span id="cb27-31"><a href="#cb27-31" aria-hidden="true" tabindex="-1"></a>  , <span class="at">from =</span> <span class="dv">0</span>, <span class="at">to =</span> <span class="fl">0.5</span></span>
+<span id="cb27-32"><a href="#cb27-32" aria-hidden="true" tabindex="-1"></a>  , <span class="at">col =</span> <span class="st">"grey"</span>, <span class="at">lwd =</span> <span class="dv">3</span></span>
+<span id="cb27-33"><a href="#cb27-33" aria-hidden="true" tabindex="-1"></a>  , <span class="at">add =</span> <span class="cn">TRUE</span></span>
+<span id="cb27-34"><a href="#cb27-34" aria-hidden="true" tabindex="-1"></a>  , <span class="at">n =</span> <span class="dv">1001</span></span>
+<span id="cb27-35"><a href="#cb27-35" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb27-36"><a href="#cb27-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-37"><a href="#cb27-37" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(</span>
+<span id="cb27-38"><a href="#cb27-38" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>)</span>
+<span id="cb27-39"><a href="#cb27-39" aria-hidden="true" tabindex="-1"></a>  , <span class="at">y =</span> <span class="fu">c</span>(prior_density, posterior_density)</span>
+<span id="cb27-40"><a href="#cb27-40" aria-hidden="true" tabindex="-1"></a>  , <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"white"</span>, <span class="st">"white"</span>)</span>
+<span id="cb27-41"><a href="#cb27-41" aria-hidden="true" tabindex="-1"></a>  , <span class="at">bg =</span> <span class="fu">c</span>(<span class="st">"grey"</span>, <span class="st">"black"</span>)</span>
+<span id="cb27-42"><a href="#cb27-42" aria-hidden="true" tabindex="-1"></a>  , <span class="at">pch =</span> <span class="dv">21</span></span>
+<span id="cb27-43"><a href="#cb27-43" aria-hidden="true" tabindex="-1"></a>  , <span class="at">cex =</span> <span class="dv">2</span></span>
+<span id="cb27-44"><a href="#cb27-44" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div id="fig-bayes-factor" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-bayes-factor-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="flash-lag-effect-extended_files/figure-html/fig-bayes-factor-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bayes-factor-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Posterior and prior density for the proportion of participants with a negative flash lag effect, <span class="math inline">\(p(\theta_i&lt;0)\)</span>. The Bayes factor in favor of the alternative hypothesis (<span class="math inline">\(p(\theta_i&lt;0) &gt; 0\)</span>) over the null hypothesis (<span class="math inline">\(p(\theta_i&lt;0) = 0\)</span>) is given by the ratio of the prior density to the posterior density at <span class="math inline">\(p(\theta_i&lt;0) = 0\)</span>.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>bayes_factor_10 <span class="ot">&lt;-</span> prior_density <span class="sc">/</span> posterior_density</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>bayes_factor_10</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 143175</code></pre>
+</div>
+</div>
+<p>We find overwhelming evidence for the unconstrained population distribution. In other words, the assumption that noone exhibits a flash <em>lead</em> effect, seems highly implausible.</p>
+<p>This approach is, however, approximate and conceptually problematic. Under the assumption of a normal population distribution, the probability of negative effects cannot be 0, <span class="math inline">\(p(\theta_i&lt;0) \neq 0\)</span>. So let’s try another approach.</p>
+<p>For an exact model comparison, we need to replace the assumed normal population distribution by a distribution family with support over the positive domain (e.g., truncated normal, log-normal, gamma, or inverse gamma distribution). This raises questions about the most appropriate distribution that lead us down the path of fitting and averaging multiple models. I will resist that temptation and proceed with a truncated normal distribution for now.</p>
+</section>
+</section>
+<section id="stochastic-dominance-analysis" class="level1">
+<h1>Stochastic dominance analysis (?)</h1>
+<p>Following <span class="citation" data-cites="doi:10.3758/s13423-018-1522-x">@doi:10.3758/s13423-018-1522-x</span> : Bayesian model comparison with various Bayesian hierarchical models, each defined by different constraints on parameters. Unconstrained model without any equality or order constraints on the individual effects is defined above.</p>
+<p><strong>Positive effect model (dominance model)</strong>: Order constraint, constrains individual effects to be positive, but effects differ/vary interindividually. Truncated normal distribution as suggested by literature.</p>
+<p>Defining <span class="math inline">\(\sigma_{\theta}\)</span> the same way as in the unconstrained model would not make any sense conceptually, since in this model <span class="math inline">\(p(\theta_i&lt;0)\)</span> is assumed to be zero. Therefore chose log-normal as informative prior (as prior of unconstrained model was similar to prior for <span class="math inline">\(\mu_\theta\)</span>).</p>
+<p><span class="math display">\[
+\begin{aligned}
+y_{ij} &amp; \sim \mathcal{N}(\theta_i, \sigma_\epsilon) \\ \\
+\theta_i &amp; \sim \mathcal{N}^+(\mu_\theta, \sigma_\theta) \\
+\sigma_\epsilon^2 &amp; \propto 1/\sigma_\epsilon^2 \\ \\
+\mu_\theta &amp; \sim \log \mathcal{N}(a_\mu, b_\mu) \\
+\sigma_\theta &amp; \sim \log \mathcal{N}(a_\sigma, b_\sigma) \\
+\end{aligned}
+\]</span></p>
+<p><strong>Common-effect model</strong>: No individual variablity in effects, all inidividual share a common, constant effect different from zero (positive). Unlikely to be an accurate representation of effects in psychology, but used as (1) benchmark to check for individual differences (model could be preferred should individual difference be very small) and (2) design check (design might not be able to capture individual differences).</p>
+<p>Priors are only needed for <span class="math inline">\(\theta\)</span> (as there is uncertainty regarding the size of the common effect) and <span class="math inline">\(\sigma_\epsilon^2\)</span>. Logarithmic normal distribution as prior for <span class="math inline">\(\theta\)</span>, constraining it to positive real numbers (paralleling prior of <span class="math inline">\(\mu_{\theta}\)</span> in unconstrained model).</p>
+<p><span class="math display">\[
+\begin{aligned}
+y_{ij} &amp; \sim \mathcal{N}(\theta, \sigma_\epsilon) \\ \\
+\theta &amp; \sim \log \mathcal{N}(a_\mu, b_\mu) \\
+\sigma_\epsilon^2 &amp; \propto 1/\sigma_\epsilon^2
+\end{aligned}
+\]</span></p>
+<p><strong>Average null model</strong>: Average effect across individuals is constrained to be zero, but effects are assumed to vary across individuals. Conceptualized as a more forgiving alternative to the null model (see below), less reactive to contaminated data. <span class="math inline">\(\theta_i\)</span> are modeled as normally distributed around a mean of zero. Only slight deviations from zero align with the idea of this model as an alternative to the null model, therefore steep log-normal distribution with relatively small mean to be chosen as prior for <span class="math inline">\(\sigma_{\theta}\)</span> (see average null vs unconstrained).</p>
+<p><span class="math display">\[
+\begin{aligned}
+y_{ij} &amp; \sim \mathcal{N}(\theta_i, \sigma_\epsilon) \\ \\
+\theta_i &amp; \sim \mathcal{N}(0, \sigma_\theta) \\
+\sigma_\epsilon^2 &amp; \propto 1/\sigma_\epsilon^2 \\ \\
+\sigma_\theta &amp; \sim \log \mathcal{N}(a_\sigma, b_\sigma)
+\end{aligned}
+\]</span></p>
+<p><strong>Null model</strong>: Specifies a true effect of zero for all individuals, most constrained model. Used as benchmark for no effect and no interindividual variability. There is no uncertainty regarding the size of the effect, as it is assumed to be zero. So no prior for theta. Only prior for sigma (measurement error around true <span class="math inline">\(\theta = 0\)</span>) needed.</p>
+<p><span class="math display">\[
+\begin{aligned}
+y_{ij} &amp; \sim \mathcal{N}(0, \sigma_\epsilon) \\ \\
+\sigma_\epsilon^2 &amp; \propto 1/\sigma_\epsilon^2
+\end{aligned}
+\]</span></p>
+<section id="dominance-vs-unconstrained" class="level2">
+<h2 class="anchored" data-anchor-id="dominance-vs-unconstrained">(1) Dominance vs unconstrained</h2>
+<p>Priors chosen to be similar to priors of unconstrained model, therefore approximately same percentage of theoretically negative <span class="math inline">\(\theta_i\)</span>. But this time, negative <span class="math inline">\(\theta_i\)</span> are excluded / impossible by stan model definition (truncated normal distribution).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">curve</span>(</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dlnorm</span>(x, <span class="at">meanlog =</span> <span class="fl">0.5</span>, <span class="at">sdlog =</span> <span class="dv">1</span>)</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  , <span class="at">from =</span> <span class="dv">0</span>, <span class="at">to =</span> <span class="dv">5</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  , <span class="at">lwd =</span> <span class="dv">2</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>  , <span class="at">xlab =</span> <span class="fu">expression</span>(mu[theta])</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>  , <span class="at">ylab =</span> <span class="st">"Density"</span></span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>  , <span class="at">las =</span> <span class="dv">1</span></span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>  , <span class="at">n =</span> <span class="dv">1001</span></span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="flash-lag-effect-extended_files/figure-html/prior-plot-mu-dominance-1.png" class="img-fluid figure-img" width="672"></p>
+<figcaption>Prior distribution of <span class="math inline">\(\mu_{\theta}\)</span> in dominance model</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">curve</span>(</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dlnorm</span>(x, <span class="at">meanlog =</span> <span class="fl">0.5</span>, <span class="at">sdlog =</span> <span class="dv">1</span>)</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  , <span class="at">from =</span> <span class="dv">0</span>, <span class="at">to =</span> <span class="dv">5</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  , <span class="at">lwd =</span> <span class="dv">2</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  , <span class="at">xlab =</span> <span class="fu">expression</span>(sigma[theta])</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  , <span class="at">ylab =</span> <span class="st">"Density"</span></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>  , <span class="at">las =</span> <span class="dv">1</span></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>  , <span class="at">n =</span> <span class="dv">1001</span></span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="flash-lag-effect-extended_files/figure-html/prior-plot-sigma-dominance-1.png" class="img-fluid figure-img" width="672"></p>
+<figcaption>Prior distribution of <span class="math inline">\(\sigma_{\theta}\)</span> in dominance model</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>pse_dominance_model <span class="ot">&lt;-</span> <span class="fu">readLines</span>(<span class="st">"./models/pse-dominance.stan"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">paste</span>(<span class="at">collapse =</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>fle_stan_dominance_data <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">N =</span> <span class="fu">nrow</span>(fle_data) <span class="sc">|&gt;</span> <span class="fu">as.integer</span>()</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>  , <span class="at">n_subjects =</span> <span class="fu">length</span>(<span class="fu">unique</span>(fle_data<span class="sc">$</span>ID)) <span class="sc">|&gt;</span> <span class="fu">as.integer</span>()</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>  , <span class="at">id =</span> <span class="fu">as.integer</span>(<span class="fu">as.factor</span>(fle_data<span class="sc">$</span>ID))</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>  , <span class="at">y =</span> fle_data<span class="sc">$</span>dva</span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Prior settings</span></span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>  , <span class="at">mu_theta_mean =</span> <span class="fl">0.5</span></span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>  , <span class="at">mu_theta_sd =</span> <span class="dv">1</span></span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>  , <span class="at">sigma_theta_mean =</span> <span class="fl">0.5</span></span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>  , <span class="at">sigma_theta_sd =</span> <span class="dv">1</span></span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a>fle_dominance_bayes <span class="ot">&lt;-</span> rstan<span class="sc">::</span><span class="fu">stan</span>(</span>
+<span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">model_code =</span> pse_dominance_model</span>
+<span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a>  , <span class="at">data =</span> fle_stan_dominance_data</span>
+<span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a>  , <span class="at">iter =</span> <span class="fl">1e5</span><span class="sc">/</span><span class="dv">4</span> <span class="sc">+</span> <span class="dv">1000</span></span>
+<span id="cb32-21"><a href="#cb32-21" aria-hidden="true" tabindex="-1"></a>  , <span class="at">warmup =</span> <span class="dv">1000</span></span>
+<span id="cb32-22"><a href="#cb32-22" aria-hidden="true" tabindex="-1"></a>  , <span class="at">chains =</span> <span class="dv">4</span></span>
+<span id="cb32-23"><a href="#cb32-23" aria-hidden="true" tabindex="-1"></a>  , <span class="at">cores =</span> <span class="dv">4</span></span>
+<span id="cb32-24"><a href="#cb32-24" aria-hidden="true" tabindex="-1"></a>  , <span class="at">seed =</span> <span class="dv">123</span></span>
+<span id="cb32-25"><a href="#cb32-25" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>WARNING: Rtools is required to build R packages, but is not currently installed.
+
+Please download and install the appropriate version of Rtools for 4.5.1 from
+https://cran.r-project.org/bin/windows/Rtools/.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Trying to compile a simple C file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Running "C:/PROGRA~1/R/R-45~1.1/bin/x64/Rcmd.exe" SHLIB foo.c
+using C compiler: 'gcc.exe (GCC) 14.3.0'
+gcc  -I"C:/PROGRA~1/R/R-45~1.1/include" -DNDEBUG   -I"C:/Users/User/AppData/Local/R/win-library/4.5/Rcpp/include/"  -I"C:/Users/User/AppData/Local/R/win-library/4.5/RcppEigen/include/"  -I"C:/Users/User/AppData/Local/R/win-library/4.5/RcppEigen/include/unsupported"  -I"C:/Users/User/AppData/Local/R/win-library/4.5/BH/include" -I"C:/Users/User/AppData/Local/R/win-library/4.5/StanHeaders/include/src/"  -I"C:/Users/User/AppData/Local/R/win-library/4.5/StanHeaders/include/"  -I"C:/Users/User/AppData/Local/R/win-library/4.5/RcppParallel/include/" -DRCPP_PARALLEL_USE_TBB=1 -I"C:/Users/User/AppData/Local/R/win-library/4.5/rstan/include" -DEIGEN_NO_DEBUG  -DBOOST_DISABLE_ASSERTS  -DBOOST_PENDING_INTEGER_LOG2_HPP  -DSTAN_THREADS  -DUSE_STANC3 -DSTRICT_R_HEADERS  -DBOOST_PHOENIX_NO_VARIADIC_EXPRESSION  -D_HAS_AUTO_PTR_ETC=0  -include "C:/Users/User/AppData/Local/R/win-library/4.5/StanHeaders/include/stan/math/prim/fun/Eigen.hpp"  -D_REENTRANT -DRCPP_PARALLEL_USE_TBB=1    -I"C:/rtools45/x86_64-w64-mingw32.static.posix/include"      -O2 -Wall -std=gnu2x  -mfpmath=sse -msse2 -mstackrealign   -c foo.c -o foo.o
+In file included from &lt;command-line&gt;:
+C:/Users/User/AppData/Local/R/win-library/4.5/StanHeaders/include/stan/math/prim/fun/Eigen.hpp:3:10: fatal error: stdexcept: No such file or directory
+    3 | #include &lt;stdexcept&gt;
+      |          ^~~~~~~~~~~
+compilation terminated.
+make: *** [C:/PROGRA~1/R/R-45~1.1/etc/x64/Makeconf:289: foo.o] Error 1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>WARNING: Rtools is required to build R packages, but is not currently installed.
+
+Please download and install the appropriate version of Rtools for 4.5.1 from
+https://cran.r-project.org/bin/windows/Rtools/.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># model diagnostics</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>str_post_dominance<span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">summary</span>(fle_dominance_bayes)<span class="sc">$</span>summary)  </span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a><span class="fu">check_hmc_diagnostics</span>(fle_dominance_bayes)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Divergences:</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>0 of 100000 iterations ended with a divergence.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Tree depth:</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>0 of 100000 iterations saturated the maximum tree depth of 10.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Energy:</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>E-BFMI indicated no pathological behavior.</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>unconstrained_ml <span class="ot">&lt;-</span> <span class="fu">bridge_sampler</span>(fle_bayes, <span class="at">method =</span> <span class="st">"warp3"</span>, <span class="at">repetitions =</span> <span class="dv">30</span>, <span class="at">silent =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>dominance_ml <span class="ot">&lt;-</span> <span class="fu">bridge_sampler</span>(fle_dominance_bayes, <span class="at">method =</span> <span class="st">"warp3"</span>, <span class="at">repetitions =</span> <span class="dv">30</span>, <span class="at">silent =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a><span class="co"># bayes factor</span></span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a><span class="fu">bayes_factor</span>(unconstrained_ml, dominance_ml)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Estimated Bayes factor (based on medians of log marginal likelihood estimates)
+ in favor of x1 over x2: 68952027.35067
+Range of estimates: 64049164.55602 to 76217946.94596
+Interquartile range: 4282399.29219</code></pre>
+</div>
+</div>
+<p>Comparing to a strictly positive population distribution (truncated normal in this case), we find overwhelming evidence for an unconstrained population distribution, implying that some individuals could truly exhibit a flash lead effect. In other words, these results suggest that it is highly unlikely that no one exhibits a true lead effect.</p>
+</section>
+<section id="common-vs-unconstrained" class="level2">
+<h2 class="anchored" data-anchor-id="common-vs-unconstrained">(2) Common vs unconstrained</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">curve</span>(</span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dlnorm</span>(x, <span class="at">meanlog =</span> <span class="fl">0.5</span>, <span class="at">sdlog =</span> <span class="dv">1</span>)</span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>  , <span class="at">from =</span> <span class="dv">0</span>, <span class="at">to =</span> <span class="dv">5</span></span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>  , <span class="at">lwd =</span> <span class="dv">2</span></span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>  , <span class="at">xlab =</span> <span class="fu">expression</span>(theta)</span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>  , <span class="at">ylab =</span> <span class="st">"Density"</span></span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a>  , <span class="at">las =</span> <span class="dv">1</span></span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a>  , <span class="at">n =</span> <span class="dv">1001</span></span>
+<span id="cb46-9"><a href="#cb46-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="flash-lag-effect-extended_files/figure-html/prior-plot-common-1.png" class="img-fluid figure-img" width="672"></p>
+<figcaption>Prior distribution of <span class="math inline">\(\theta\)</span> in common model</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>pse_common_model <span class="ot">&lt;-</span> <span class="fu">readLines</span>(<span class="st">"./models/pse-common.stan"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">paste</span>(<span class="at">collapse =</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>fle_stan_common_data <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">N =</span> <span class="fu">nrow</span>(fle_data) <span class="sc">|&gt;</span> <span class="fu">as.integer</span>()</span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a>  , <span class="at">n_subjects =</span> <span class="fu">length</span>(<span class="fu">unique</span>(fle_data<span class="sc">$</span>ID)) <span class="sc">|&gt;</span> <span class="fu">as.integer</span>()</span>
+<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a>  , <span class="at">id =</span> <span class="fu">as.integer</span>(<span class="fu">as.factor</span>(fle_data<span class="sc">$</span>ID))</span>
+<span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a>  , <span class="at">y =</span> fle_data<span class="sc">$</span>dva</span>
+<span id="cb47-9"><a href="#cb47-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-10"><a href="#cb47-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Prior settings</span></span>
+<span id="cb47-11"><a href="#cb47-11" aria-hidden="true" tabindex="-1"></a>  , <span class="at">theta_mean =</span> <span class="fl">0.5</span></span>
+<span id="cb47-12"><a href="#cb47-12" aria-hidden="true" tabindex="-1"></a>  , <span class="at">theta_sd =</span> <span class="dv">1</span></span>
+<span id="cb47-13"><a href="#cb47-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb47-14"><a href="#cb47-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-15"><a href="#cb47-15" aria-hidden="true" tabindex="-1"></a>fle_common_bayes <span class="ot">&lt;-</span> rstan<span class="sc">::</span><span class="fu">stan</span>(</span>
+<span id="cb47-16"><a href="#cb47-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">model_code =</span> pse_common_model</span>
+<span id="cb47-17"><a href="#cb47-17" aria-hidden="true" tabindex="-1"></a>  , <span class="at">data =</span> fle_stan_common_data</span>
+<span id="cb47-18"><a href="#cb47-18" aria-hidden="true" tabindex="-1"></a>  , <span class="at">iter =</span> <span class="fl">1e5</span><span class="sc">/</span><span class="dv">4</span> <span class="sc">+</span> <span class="dv">1000</span></span>
+<span id="cb47-19"><a href="#cb47-19" aria-hidden="true" tabindex="-1"></a>  , <span class="at">warmup =</span> <span class="dv">1000</span></span>
+<span id="cb47-20"><a href="#cb47-20" aria-hidden="true" tabindex="-1"></a>  , <span class="at">chains =</span> <span class="dv">4</span></span>
+<span id="cb47-21"><a href="#cb47-21" aria-hidden="true" tabindex="-1"></a>  , <span class="at">cores =</span> <span class="dv">4</span></span>
+<span id="cb47-22"><a href="#cb47-22" aria-hidden="true" tabindex="-1"></a>  , <span class="at">seed =</span> <span class="dv">123</span></span>
+<span id="cb47-23"><a href="#cb47-23" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>WARNING: Rtools is required to build R packages, but is not currently installed.
+
+Please download and install the appropriate version of Rtools for 4.5.1 from
+https://cran.r-project.org/bin/windows/Rtools/.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Trying to compile a simple C file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Running "C:/PROGRA~1/R/R-45~1.1/bin/x64/Rcmd.exe" SHLIB foo.c
+using C compiler: 'gcc.exe (GCC) 14.3.0'
+gcc  -I"C:/PROGRA~1/R/R-45~1.1/include" -DNDEBUG   -I"C:/Users/User/AppData/Local/R/win-library/4.5/Rcpp/include/"  -I"C:/Users/User/AppData/Local/R/win-library/4.5/RcppEigen/include/"  -I"C:/Users/User/AppData/Local/R/win-library/4.5/RcppEigen/include/unsupported"  -I"C:/Users/User/AppData/Local/R/win-library/4.5/BH/include" -I"C:/Users/User/AppData/Local/R/win-library/4.5/StanHeaders/include/src/"  -I"C:/Users/User/AppData/Local/R/win-library/4.5/StanHeaders/include/"  -I"C:/Users/User/AppData/Local/R/win-library/4.5/RcppParallel/include/" -DRCPP_PARALLEL_USE_TBB=1 -I"C:/Users/User/AppData/Local/R/win-library/4.5/rstan/include" -DEIGEN_NO_DEBUG  -DBOOST_DISABLE_ASSERTS  -DBOOST_PENDING_INTEGER_LOG2_HPP  -DSTAN_THREADS  -DUSE_STANC3 -DSTRICT_R_HEADERS  -DBOOST_PHOENIX_NO_VARIADIC_EXPRESSION  -D_HAS_AUTO_PTR_ETC=0  -include "C:/Users/User/AppData/Local/R/win-library/4.5/StanHeaders/include/stan/math/prim/fun/Eigen.hpp"  -D_REENTRANT -DRCPP_PARALLEL_USE_TBB=1    -I"C:/rtools45/x86_64-w64-mingw32.static.posix/include"      -O2 -Wall -std=gnu2x  -mfpmath=sse -msse2 -mstackrealign   -c foo.c -o foo.o
+In file included from &lt;command-line&gt;:
+C:/Users/User/AppData/Local/R/win-library/4.5/StanHeaders/include/stan/math/prim/fun/Eigen.hpp:3:10: fatal error: stdexcept: No such file or directory
+    3 | #include &lt;stdexcept&gt;
+      |          ^~~~~~~~~~~
+compilation terminated.
+make: *** [C:/PROGRA~1/R/R-45~1.1/etc/x64/Makeconf:289: foo.o] Error 1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>WARNING: Rtools is required to build R packages, but is not currently installed.
+
+Please download and install the appropriate version of Rtools for 4.5.1 from
+https://cran.r-project.org/bin/windows/Rtools/.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="co"># model diagnostics</span></span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>str_post_common <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">summary</span>(fle_common_bayes)<span class="sc">$</span>summary)</span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a><span class="fu">check_hmc_diagnostics</span>(fle_common_bayes)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Divergences:</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>0 of 100000 iterations ended with a divergence.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Tree depth:</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>0 of 100000 iterations saturated the maximum tree depth of 10.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Energy:</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>E-BFMI indicated no pathological behavior.</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>common_ml <span class="ot">&lt;-</span> <span class="fu">bridge_sampler</span>(fle_common_bayes, <span class="at">method =</span> <span class="st">"warp3"</span>, <span class="at">repetitions =</span> <span class="dv">30</span>, <span class="at">silent =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a><span class="fu">bayes_factor</span>(unconstrained_ml, common_ml)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Estimated Bayes factor (based on medians of log marginal likelihood estimates)
+ in favor of x1 over x2: 1384910385045.91138
+Range of estimates: 1382267502467.16919 to 1387270069365.84204
+Interquartile range: 2253221899.83423</code></pre>
+</div>
+</div>
+<p>We find overwhelming evidence in favor of the unconstrained model over the common effect model. It therefore seems highly implausible that all participants share a common true effect of the same size, as models allowing for interindividual differences in true effects are a better fit for the data. These results also validate / support the study design, as interindividual differences in true effects were measureable.</p>
+</section>
+<section id="average-null-vs-unconstrained" class="level2">
+<h2 class="anchored" data-anchor-id="average-null-vs-unconstrained">(3) Average null vs unconstrained</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="fu">curve</span>(</span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dlnorm</span>(x, <span class="at">meanlog =</span> <span class="sc">-</span><span class="fl">0.5</span>, <span class="at">sdlog =</span> <span class="fl">0.5</span>)</span>
+<span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a>  , <span class="at">from =</span> <span class="dv">0</span>, <span class="at">to =</span> <span class="dv">5</span></span>
+<span id="cb61-4"><a href="#cb61-4" aria-hidden="true" tabindex="-1"></a>  , <span class="at">lwd =</span> <span class="dv">2</span></span>
+<span id="cb61-5"><a href="#cb61-5" aria-hidden="true" tabindex="-1"></a>  , <span class="at">xlab =</span> <span class="fu">expression</span>(sigma[theta])</span>
+<span id="cb61-6"><a href="#cb61-6" aria-hidden="true" tabindex="-1"></a>  , <span class="at">ylab =</span> <span class="st">"Density"</span></span>
+<span id="cb61-7"><a href="#cb61-7" aria-hidden="true" tabindex="-1"></a>  , <span class="at">las =</span> <span class="dv">1</span></span>
+<span id="cb61-8"><a href="#cb61-8" aria-hidden="true" tabindex="-1"></a>  , <span class="at">n =</span> <span class="dv">1001</span></span>
+<span id="cb61-9"><a href="#cb61-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="flash-lag-effect-extended_files/figure-html/prior-plot-average-1.png" class="img-fluid figure-img" width="672"></p>
+<figcaption>Prior distribution of <span class="math inline">\(\sigma_{\theta}\)</span> in average null model</figcaption>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Mean of prior sigma_theta</span></span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a><span class="fu">exp</span>(<span class="sc">-</span><span class="fl">0.5</span> <span class="sc">+</span> (<span class="fl">0.5</span>)<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.6872893</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>pse_average_model <span class="ot">&lt;-</span> <span class="fu">readLines</span>(<span class="st">"./models/pse-average-null.stan"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">paste</span>(<span class="at">collapse =</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb64-4"><a href="#cb64-4" aria-hidden="true" tabindex="-1"></a>fle_stan_average_data <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb64-5"><a href="#cb64-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">N =</span> <span class="fu">nrow</span>(fle_data) <span class="sc">|&gt;</span> <span class="fu">as.integer</span>()</span>
+<span id="cb64-6"><a href="#cb64-6" aria-hidden="true" tabindex="-1"></a>  , <span class="at">n_subjects =</span> <span class="fu">length</span>(<span class="fu">unique</span>(fle_data<span class="sc">$</span>ID)) <span class="sc">|&gt;</span> <span class="fu">as.integer</span>()</span>
+<span id="cb64-7"><a href="#cb64-7" aria-hidden="true" tabindex="-1"></a>  , <span class="at">id =</span> <span class="fu">as.integer</span>(<span class="fu">as.factor</span>(fle_data<span class="sc">$</span>ID))</span>
+<span id="cb64-8"><a href="#cb64-8" aria-hidden="true" tabindex="-1"></a>  , <span class="at">y =</span> fle_data<span class="sc">$</span>dva</span>
+<span id="cb64-9"><a href="#cb64-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb64-10"><a href="#cb64-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Prior settings</span></span>
+<span id="cb64-11"><a href="#cb64-11" aria-hidden="true" tabindex="-1"></a>  , <span class="at">sigma_theta_mean =</span> <span class="sc">-</span><span class="fl">0.5</span></span>
+<span id="cb64-12"><a href="#cb64-12" aria-hidden="true" tabindex="-1"></a>  , <span class="at">sigma_theta_sd =</span> <span class="fl">0.5</span></span>
+<span id="cb64-13"><a href="#cb64-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb64-14"><a href="#cb64-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb64-15"><a href="#cb64-15" aria-hidden="true" tabindex="-1"></a>fle_average_bayes <span class="ot">&lt;-</span> rstan<span class="sc">::</span><span class="fu">stan</span>(</span>
+<span id="cb64-16"><a href="#cb64-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">model_code =</span> pse_average_model</span>
+<span id="cb64-17"><a href="#cb64-17" aria-hidden="true" tabindex="-1"></a>  , <span class="at">data =</span> fle_stan_average_data</span>
+<span id="cb64-18"><a href="#cb64-18" aria-hidden="true" tabindex="-1"></a>  , <span class="at">iter =</span> <span class="fl">1e5</span><span class="sc">/</span><span class="dv">4</span> <span class="sc">+</span> <span class="dv">1000</span></span>
+<span id="cb64-19"><a href="#cb64-19" aria-hidden="true" tabindex="-1"></a>  , <span class="at">warmup =</span> <span class="dv">1000</span></span>
+<span id="cb64-20"><a href="#cb64-20" aria-hidden="true" tabindex="-1"></a>  , <span class="at">chains =</span> <span class="dv">4</span></span>
+<span id="cb64-21"><a href="#cb64-21" aria-hidden="true" tabindex="-1"></a>  , <span class="at">cores =</span> <span class="dv">4</span></span>
+<span id="cb64-22"><a href="#cb64-22" aria-hidden="true" tabindex="-1"></a>  , <span class="at">seed =</span> <span class="dv">123</span></span>
+<span id="cb64-23"><a href="#cb64-23" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>WARNING: Rtools is required to build R packages, but is not currently installed.
+
+Please download and install the appropriate version of Rtools for 4.5.1 from
+https://cran.r-project.org/bin/windows/Rtools/.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Trying to compile a simple C file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Running "C:/PROGRA~1/R/R-45~1.1/bin/x64/Rcmd.exe" SHLIB foo.c
+using C compiler: 'gcc.exe (GCC) 14.3.0'
+gcc  -I"C:/PROGRA~1/R/R-45~1.1/include" -DNDEBUG   -I"C:/Users/User/AppData/Local/R/win-library/4.5/Rcpp/include/"  -I"C:/Users/User/AppData/Local/R/win-library/4.5/RcppEigen/include/"  -I"C:/Users/User/AppData/Local/R/win-library/4.5/RcppEigen/include/unsupported"  -I"C:/Users/User/AppData/Local/R/win-library/4.5/BH/include" -I"C:/Users/User/AppData/Local/R/win-library/4.5/StanHeaders/include/src/"  -I"C:/Users/User/AppData/Local/R/win-library/4.5/StanHeaders/include/"  -I"C:/Users/User/AppData/Local/R/win-library/4.5/RcppParallel/include/" -DRCPP_PARALLEL_USE_TBB=1 -I"C:/Users/User/AppData/Local/R/win-library/4.5/rstan/include" -DEIGEN_NO_DEBUG  -DBOOST_DISABLE_ASSERTS  -DBOOST_PENDING_INTEGER_LOG2_HPP  -DSTAN_THREADS  -DUSE_STANC3 -DSTRICT_R_HEADERS  -DBOOST_PHOENIX_NO_VARIADIC_EXPRESSION  -D_HAS_AUTO_PTR_ETC=0  -include "C:/Users/User/AppData/Local/R/win-library/4.5/StanHeaders/include/stan/math/prim/fun/Eigen.hpp"  -D_REENTRANT -DRCPP_PARALLEL_USE_TBB=1    -I"C:/rtools45/x86_64-w64-mingw32.static.posix/include"      -O2 -Wall -std=gnu2x  -mfpmath=sse -msse2 -mstackrealign   -c foo.c -o foo.o
+In file included from &lt;command-line&gt;:
+C:/Users/User/AppData/Local/R/win-library/4.5/StanHeaders/include/stan/math/prim/fun/Eigen.hpp:3:10: fatal error: stdexcept: No such file or directory
+    3 | #include &lt;stdexcept&gt;
+      |          ^~~~~~~~~~~
+compilation terminated.
+make: *** [C:/PROGRA~1/R/R-45~1.1/etc/x64/Makeconf:289: foo.o] Error 1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>WARNING: Rtools is required to build R packages, but is not currently installed.
+
+Please download and install the appropriate version of Rtools for 4.5.1 from
+https://cran.r-project.org/bin/windows/Rtools/.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="co"># model diagnostics</span></span>
+<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a>str_post_average <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">summary</span>(fle_average_bayes)<span class="sc">$</span>summary)</span>
+<span id="cb69-3"><a href="#cb69-3" aria-hidden="true" tabindex="-1"></a><span class="fu">check_hmc_diagnostics</span>(fle_average_bayes)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Divergences:</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>0 of 100000 iterations ended with a divergence.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Tree depth:</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>0 of 100000 iterations saturated the maximum tree depth of 10.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Energy:</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>E-BFMI indicated no pathological behavior.</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a>average_ml <span class="ot">&lt;-</span> <span class="fu">bridge_sampler</span>(fle_average_bayes, <span class="at">method =</span> <span class="st">"warp3"</span>, <span class="at">repetitions =</span> <span class="dv">30</span>, <span class="at">silent =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb76-3"><a href="#cb76-3" aria-hidden="true" tabindex="-1"></a><span class="fu">bayes_factor</span>(unconstrained_ml, average_ml)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Estimated Bayes factor (based on medians of log marginal likelihood estimates)
+ in favor of x1 over x2: 4651831424885.09668
+Range of estimates: 4636761511620.84668 to 4668722682563.24023
+Interquartile range: 8077851866.02441</code></pre>
+</div>
+</div>
+</section>
+<section id="null-vs-unconstrained" class="level2">
+<h2 class="anchored" data-anchor-id="null-vs-unconstrained">(4) Null vs unconstrained</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a>pse_null_model <span class="ot">&lt;-</span> <span class="fu">readLines</span>(<span class="st">"./models/pse-null.stan"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb78-2"><a href="#cb78-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">paste</span>(<span class="at">collapse =</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb78-3"><a href="#cb78-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb78-4"><a href="#cb78-4" aria-hidden="true" tabindex="-1"></a>fle_stan_null_data <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb78-5"><a href="#cb78-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">N =</span> <span class="fu">nrow</span>(fle_data) <span class="sc">|&gt;</span> <span class="fu">as.integer</span>()</span>
+<span id="cb78-6"><a href="#cb78-6" aria-hidden="true" tabindex="-1"></a>  , <span class="at">n_subjects =</span> <span class="fu">length</span>(<span class="fu">unique</span>(fle_data<span class="sc">$</span>ID)) <span class="sc">|&gt;</span> <span class="fu">as.integer</span>()</span>
+<span id="cb78-7"><a href="#cb78-7" aria-hidden="true" tabindex="-1"></a>  , <span class="at">id =</span> <span class="fu">as.integer</span>(<span class="fu">as.factor</span>(fle_data<span class="sc">$</span>ID))</span>
+<span id="cb78-8"><a href="#cb78-8" aria-hidden="true" tabindex="-1"></a>  , <span class="at">y =</span> fle_data<span class="sc">$</span>dva</span>
+<span id="cb78-9"><a href="#cb78-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb78-10"><a href="#cb78-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb78-11"><a href="#cb78-11" aria-hidden="true" tabindex="-1"></a>fle_null_bayes <span class="ot">&lt;-</span> rstan<span class="sc">::</span><span class="fu">stan</span>(</span>
+<span id="cb78-12"><a href="#cb78-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">model_code =</span> pse_null_model</span>
+<span id="cb78-13"><a href="#cb78-13" aria-hidden="true" tabindex="-1"></a>  , <span class="at">data =</span> fle_stan_null_data</span>
+<span id="cb78-14"><a href="#cb78-14" aria-hidden="true" tabindex="-1"></a>  , <span class="at">iter =</span> <span class="fl">1e5</span><span class="sc">/</span><span class="dv">4</span> <span class="sc">+</span> <span class="dv">1000</span></span>
+<span id="cb78-15"><a href="#cb78-15" aria-hidden="true" tabindex="-1"></a>  , <span class="at">warmup =</span> <span class="dv">1000</span></span>
+<span id="cb78-16"><a href="#cb78-16" aria-hidden="true" tabindex="-1"></a>  , <span class="at">chains =</span> <span class="dv">4</span></span>
+<span id="cb78-17"><a href="#cb78-17" aria-hidden="true" tabindex="-1"></a>  , <span class="at">cores =</span> <span class="dv">4</span></span>
+<span id="cb78-18"><a href="#cb78-18" aria-hidden="true" tabindex="-1"></a>  , <span class="at">seed =</span> <span class="dv">123</span></span>
+<span id="cb78-19"><a href="#cb78-19" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>WARNING: Rtools is required to build R packages, but is not currently installed.
+
+Please download and install the appropriate version of Rtools for 4.5.1 from
+https://cran.r-project.org/bin/windows/Rtools/.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Trying to compile a simple C file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Running "C:/PROGRA~1/R/R-45~1.1/bin/x64/Rcmd.exe" SHLIB foo.c
+using C compiler: 'gcc.exe (GCC) 14.3.0'
+gcc  -I"C:/PROGRA~1/R/R-45~1.1/include" -DNDEBUG   -I"C:/Users/User/AppData/Local/R/win-library/4.5/Rcpp/include/"  -I"C:/Users/User/AppData/Local/R/win-library/4.5/RcppEigen/include/"  -I"C:/Users/User/AppData/Local/R/win-library/4.5/RcppEigen/include/unsupported"  -I"C:/Users/User/AppData/Local/R/win-library/4.5/BH/include" -I"C:/Users/User/AppData/Local/R/win-library/4.5/StanHeaders/include/src/"  -I"C:/Users/User/AppData/Local/R/win-library/4.5/StanHeaders/include/"  -I"C:/Users/User/AppData/Local/R/win-library/4.5/RcppParallel/include/" -DRCPP_PARALLEL_USE_TBB=1 -I"C:/Users/User/AppData/Local/R/win-library/4.5/rstan/include" -DEIGEN_NO_DEBUG  -DBOOST_DISABLE_ASSERTS  -DBOOST_PENDING_INTEGER_LOG2_HPP  -DSTAN_THREADS  -DUSE_STANC3 -DSTRICT_R_HEADERS  -DBOOST_PHOENIX_NO_VARIADIC_EXPRESSION  -D_HAS_AUTO_PTR_ETC=0  -include "C:/Users/User/AppData/Local/R/win-library/4.5/StanHeaders/include/stan/math/prim/fun/Eigen.hpp"  -D_REENTRANT -DRCPP_PARALLEL_USE_TBB=1    -I"C:/rtools45/x86_64-w64-mingw32.static.posix/include"      -O2 -Wall -std=gnu2x  -mfpmath=sse -msse2 -mstackrealign   -c foo.c -o foo.o
+In file included from &lt;command-line&gt;:
+C:/Users/User/AppData/Local/R/win-library/4.5/StanHeaders/include/stan/math/prim/fun/Eigen.hpp:3:10: fatal error: stdexcept: No such file or directory
+    3 | #include &lt;stdexcept&gt;
+      |          ^~~~~~~~~~~
+compilation terminated.
+make: *** [C:/PROGRA~1/R/R-45~1.1/etc/x64/Makeconf:289: foo.o] Error 1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>WARNING: Rtools is required to build R packages, but is not currently installed.
+
+Please download and install the appropriate version of Rtools for 4.5.1 from
+https://cran.r-project.org/bin/windows/Rtools/.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb83"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a><span class="co"># model diagnostics</span></span>
+<span id="cb83-2"><a href="#cb83-2" aria-hidden="true" tabindex="-1"></a>str_post_null <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">summary</span>(fle_null_bayes)<span class="sc">$</span>summary)</span>
+<span id="cb83-3"><a href="#cb83-3" aria-hidden="true" tabindex="-1"></a><span class="fu">check_hmc_diagnostics</span>(fle_null_bayes)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Divergences:</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>0 of 100000 iterations ended with a divergence.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Tree depth:</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>0 of 100000 iterations saturated the maximum tree depth of 10.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Energy:</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>E-BFMI indicated no pathological behavior.</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb90"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a>null_ml <span class="ot">&lt;-</span> <span class="fu">bridge_sampler</span>(fle_null_bayes, <span class="at">method =</span> <span class="st">"warp3"</span>, <span class="at">repetitions =</span> <span class="dv">30</span>, <span class="at">silent =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: effective sample size cannot be calculated, has been replaced by
+number of samples.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb92"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bayes_factor</span>(unconstrained_ml, null_ml)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Estimated Bayes factor (based on medians of log marginal likelihood estimates)
+ in favor of x1 over x2: 307834621758921415446626064640602.00000
+Range of estimates: 307219797968208821760002062626244.00000 to 308335823700413263242028022628228.00000
+Interquartile range: 508728581792954241408646460248.00000</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="bayesian-model-comparison" class="level1">
+<h1>Bayesian model comparison</h1>
+<section id="bayes-factor-summary-table" class="level2">
+<h2 class="anchored" data-anchor-id="bayes-factor-summary-table">Bayes factor summary table</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb94"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a>bfs_base_unc <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">bayes_factor</span>(null_ml, unconstrained_ml)<span class="sc">$</span>bf_median_based</span>
+<span id="cb94-2"><a href="#cb94-2" aria-hidden="true" tabindex="-1"></a>    , <span class="fu">bayes_factor</span>(average_ml, unconstrained_ml)<span class="sc">$</span>bf_median_based</span>
+<span id="cb94-3"><a href="#cb94-3" aria-hidden="true" tabindex="-1"></a>    , <span class="fu">bayes_factor</span>(common_ml, unconstrained_ml)<span class="sc">$</span>bf_median_based</span>
+<span id="cb94-4"><a href="#cb94-4" aria-hidden="true" tabindex="-1"></a>    , <span class="fu">bayes_factor</span>(dominance_ml, unconstrained_ml)<span class="sc">$</span>bf_median_based</span>
+<span id="cb94-5"><a href="#cb94-5" aria-hidden="true" tabindex="-1"></a>    , <span class="dv">1</span></span>
+<span id="cb94-6"><a href="#cb94-6" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb94-7"><a href="#cb94-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb94-8"><a href="#cb94-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Naive posterior probability: naive assumption that prior odds = 1 for all model comparisons</span></span>
+<span id="cb94-9"><a href="#cb94-9" aria-hidden="true" tabindex="-1"></a><span class="co"># -&gt; post prob = bf / sum(bf)</span></span>
+<span id="cb94-10"><a href="#cb94-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb94-11"><a href="#cb94-11" aria-hidden="true" tabindex="-1"></a>npp_base_unc <span class="ot">&lt;-</span> bfs_base_unc <span class="sc">/</span> <span class="fu">sum</span>(bfs_base_unc) </span>
+<span id="cb94-12"><a href="#cb94-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb94-13"><a href="#cb94-13" aria-hidden="true" tabindex="-1"></a><span class="co"># model diagnostics</span></span>
+<span id="cb94-14"><a href="#cb94-14" aria-hidden="true" tabindex="-1"></a>rhat <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">max</span>(str_post_null<span class="sc">$</span>Rhat)</span>
+<span id="cb94-15"><a href="#cb94-15" aria-hidden="true" tabindex="-1"></a>          ,<span class="fu">max</span>(str_post_average<span class="sc">$</span>Rhat)</span>
+<span id="cb94-16"><a href="#cb94-16" aria-hidden="true" tabindex="-1"></a>          ,<span class="fu">max</span>(str_post_common<span class="sc">$</span>Rhat)</span>
+<span id="cb94-17"><a href="#cb94-17" aria-hidden="true" tabindex="-1"></a>          ,<span class="fu">max</span>(str_post_dominance<span class="sc">$</span>Rhat)</span>
+<span id="cb94-18"><a href="#cb94-18" aria-hidden="true" tabindex="-1"></a>          ,<span class="fu">max</span>(str_post_unconstrained<span class="sc">$</span>Rhat))</span>
+<span id="cb94-19"><a href="#cb94-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb94-20"><a href="#cb94-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb94-21"><a href="#cb94-21" aria-hidden="true" tabindex="-1"></a><span class="co"># bridge sampling CV</span></span>
+<span id="cb94-22"><a href="#cb94-22" aria-hidden="true" tabindex="-1"></a> bridge.cv <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">sd</span>(null_ml<span class="sc">$</span>logml)<span class="sc">/</span><span class="fu">abs</span>(<span class="fu">mean</span>(null_ml<span class="sc">$</span>logml))</span>
+<span id="cb94-23"><a href="#cb94-23" aria-hidden="true" tabindex="-1"></a>                ,<span class="fu">sd</span>(average_ml<span class="sc">$</span>logml)<span class="sc">/</span><span class="fu">abs</span>(<span class="fu">mean</span>(average_ml<span class="sc">$</span>logml))</span>
+<span id="cb94-24"><a href="#cb94-24" aria-hidden="true" tabindex="-1"></a>                ,<span class="fu">sd</span>(common_ml<span class="sc">$</span>logml)<span class="sc">/</span><span class="fu">abs</span>(<span class="fu">mean</span>(common_ml<span class="sc">$</span>logml))</span>
+<span id="cb94-25"><a href="#cb94-25" aria-hidden="true" tabindex="-1"></a>                ,<span class="fu">sd</span>(dominance_ml<span class="sc">$</span>logml)<span class="sc">/</span><span class="fu">abs</span>(<span class="fu">mean</span>(dominance_ml<span class="sc">$</span>logml))</span>
+<span id="cb94-26"><a href="#cb94-26" aria-hidden="true" tabindex="-1"></a>                ,<span class="fu">sd</span>(unconstrained_ml<span class="sc">$</span>logml)<span class="sc">/</span><span class="fu">abs</span>(<span class="fu">mean</span>(unconstrained_ml<span class="sc">$</span>logml)))</span>
+<span id="cb94-27"><a href="#cb94-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb94-28"><a href="#cb94-28" aria-hidden="true" tabindex="-1"></a><span class="co"># summary table</span></span>
+<span id="cb94-29"><a href="#cb94-29" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(</span>
+<span id="cb94-30"><a href="#cb94-30" aria-hidden="true" tabindex="-1"></a>  <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"Null model"</span>, <span class="st">"Average null model"</span>, <span class="st">"Common model"</span>, <span class="st">"Dominance model"</span>, <span class="st">"Unconstrained model"</span>)</span>
+<span id="cb94-31"><a href="#cb94-31" aria-hidden="true" tabindex="-1"></a>  , <span class="at">bf =</span> <span class="fu">printnum</span>(bfs_base_unc, <span class="at">format =</span> <span class="st">"e"</span>)</span>
+<span id="cb94-32"><a href="#cb94-32" aria-hidden="true" tabindex="-1"></a>  , <span class="at">npp =</span> <span class="fu">printnum</span>(npp_base_unc, <span class="at">gt1 =</span> F, <span class="at">digits =</span> <span class="dv">2</span>)</span>
+<span id="cb94-33"><a href="#cb94-33" aria-hidden="true" tabindex="-1"></a>  , <span class="at">rhat =</span> <span class="fu">printnum</span>(rhat, <span class="at">digits =</span> <span class="dv">3</span>)</span>
+<span id="cb94-34"><a href="#cb94-34" aria-hidden="true" tabindex="-1"></a>  , <span class="at">cv =</span> <span class="fu">printnum</span>(bridge.cv, <span class="at">format =</span> <span class="st">"e"</span>)</span>
+<span id="cb94-35"><a href="#cb94-35" aria-hidden="true" tabindex="-1"></a>)  <span class="sc">|&gt;</span> knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb94-36"><a href="#cb94-36" aria-hidden="true" tabindex="-1"></a>  <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Model ($i$)"</span>, <span class="st">"$BF_{i/unconstrained}$"</span>, <span class="st">"NPP"</span>, <span class="st">"max.$</span><span class="sc">\\</span><span class="st">hat{R}$"</span>, <span class="st">"Bridge Sampling CV"</span>)</span>
+<span id="cb94-37"><a href="#cb94-37" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Summary table: Bayes Factors over unconstrained model (=reference model) and naive posterior probability (NPP), based on assumption of equal prior model odds. Maximum <span class="math inline">\(\hat{R}\)</span> and coefficient of variation (CV) for the bridge sampling are also given for each model.</caption>
+<colgroup>
+<col style="width: 23%">
+<col style="width: 27%">
+<col style="width: 7%">
+<col style="width: 16%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Model (<span class="math inline">\(i\)</span>)</th>
+<th style="text-align: left;"><span class="math inline">\(BF_{i/unconstrained}\)</span></th>
+<th style="text-align: left;">NPP</th>
+<th style="text-align: left;">max.<span class="math inline">\(\hat{R}\)</span></th>
+<th style="text-align: left;">Bridge Sampling CV</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Null model</td>
+<td style="text-align: left;"><span class="math inline">\(3.25 \times 10^{-33}\)</span></td>
+<td style="text-align: left;">.00</td>
+<td style="text-align: left;">1.000</td>
+<td style="text-align: left;"><span class="math inline">\(3.76 \times 10^{-8}\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Average null model</td>
+<td style="text-align: left;"><span class="math inline">\(2.15 \times 10^{-13}\)</span></td>
+<td style="text-align: left;">.00</td>
+<td style="text-align: left;">1.000</td>
+<td style="text-align: left;"><span class="math inline">\(3.78 \times 10^{-6}\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Common model</td>
+<td style="text-align: left;"><span class="math inline">\(7.22 \times 10^{-13}\)</span></td>
+<td style="text-align: left;">.00</td>
+<td style="text-align: left;">1.000</td>
+<td style="text-align: left;"><span class="math inline">\(2.23 \times 10^{-7}\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Dominance model</td>
+<td style="text-align: left;"><span class="math inline">\(1.45 \times 10^{-8}\)</span></td>
+<td style="text-align: left;">.00</td>
+<td style="text-align: left;">1.001</td>
+<td style="text-align: left;"><span class="math inline">\(1.28 \times 10^{-4}\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Unconstrained model</td>
+<td style="text-align: left;"><span class="math inline">\(1.00\)</span></td>
+<td style="text-align: left;">&gt; .99</td>
+<td style="text-align: left;">1.000</td>
+<td style="text-align: left;"><span class="math inline">\(3.13 \times 10^{-6}\)</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>In summary, we find overwhelming evidence for the unconstrained model and the existence of not only flash lag, but also flash lead effects. Given the data at hand, the posterior probability that no one exhibits a flash lead effect is practically zero (with a priori assumption that all models are equally likely).</p>
+</section>
+<section id="prior-settings-for-sigma_theta" class="level2">
+<h2 class="anchored" data-anchor-id="prior-settings-for-sigma_theta">Prior settings for <span class="math inline">\(\sigma_{\theta}\)</span></h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb95"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb95-1"><a href="#cb95-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">priors =</span> <span class="fu">c</span>(sigma_prior</span>
+<span id="cb95-2"><a href="#cb95-2" aria-hidden="true" tabindex="-1"></a>                      ,<span class="fu">rlnorm</span>(<span class="fl">1e5</span>, <span class="at">meanlog =</span> <span class="fl">0.5</span>, <span class="at">sdlog =</span> <span class="dv">1</span>)</span>
+<span id="cb95-3"><a href="#cb95-3" aria-hidden="true" tabindex="-1"></a>                      ,<span class="fu">rlnorm</span>(<span class="fl">1e5</span>, <span class="at">meanlog =</span> <span class="sc">-</span><span class="fl">0.5</span>, <span class="at">sdlog =</span> <span class="fl">0.5</span>))</span>
+<span id="cb95-4"><a href="#cb95-4" aria-hidden="true" tabindex="-1"></a>                      ,<span class="at">model =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"unconstrained"</span>,<span class="st">"dominance"</span>,<span class="st">"average null"</span>), <span class="at">each =</span> <span class="fl">1e5</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb95-5"><a href="#cb95-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb95-6"><a href="#cb95-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> priors, <span class="at">fill =</span> model) <span class="sc">+</span></span>
+<span id="cb95-7"><a href="#cb95-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lims</span>(<span class="at">x =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">5</span>)) <span class="sc">+</span></span>
+<span id="cb95-8"><a href="#cb95-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="at">alpha =</span> <span class="fl">0.2</span>, <span class="at">linewidth =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb95-9"><a href="#cb95-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb95-10"><a href="#cb95-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="fu">expression</span>(sigma[theta])</span>
+<span id="cb95-11"><a href="#cb95-11" aria-hidden="true" tabindex="-1"></a>    , <span class="at">y =</span> <span class="st">"Density"</span></span>
+<span id="cb95-12"><a href="#cb95-12" aria-hidden="true" tabindex="-1"></a>    , <span class="at">fill =</span> <span class="st">"Prior for"</span></span>
+<span id="cb95-13"><a href="#cb95-13" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb95-14"><a href="#cb95-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_viridis_d</span>(<span class="at">option =</span> <span class="st">"G"</span>, <span class="at">begin =</span> <span class="fl">0.1</span>, <span class="at">end =</span> <span class="fl">0.8</span>, <span class="at">aesthetics =</span> <span class="st">"fill"</span>) <span class="sc">+</span></span>
+<span id="cb95-15"><a href="#cb95-15" aria-hidden="true" tabindex="-1"></a>  papaja<span class="sc">::</span><span class="fu">theme_apa</span>(<span class="at">base_size =</span> <span class="dv">16</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 27671 rows containing non-finite outside the scale range
+(`stat_density()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="flash-lag-effect-extended_files/figure-html/prior-cross-model-comparison-1.png" class="img-fluid figure-img" width="672"></p>
+<figcaption>Comparison of priors for <span class="math inline">\(\sigma_{\theta}\)</span> across the unconstrained, dominance and average null model</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
