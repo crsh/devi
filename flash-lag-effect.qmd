@@ -266,7 +266,7 @@ fle_bayes |>
 #| label: fig-posterior-distributions
 #| fig-cap: "Posterior distributions for the group mean of individual differences $\\mu_{\\theta}$, the standard deviation of individual differences $\\sigma_{\\theta}$, and the proportion of participants with a negative flash lag effect $p(\\theta_i<0)$."
 
-(tidybayes::gather_draws(
+posterior_population_parameters <- tidybayes::gather_draws(
   fle_bayes
   , mu_theta, sigma_theta, p_negative_theta
 ) |>
@@ -276,7 +276,9 @@ fle_bayes |>
       , levels = c("mu_theta", "sigma_theta", "p_negative_theta")
       , labels = c("mu[theta]", "sigma[theta]", "p(theta[i] < 0)")
     )
-  ) |>
+  )
+
+(posterior_population_parameters |>
   ggplot() +
   aes(x = .value, fill = after_stat(level)) +
   stat_halfeye(fill_type = "segments", normalize = "panels", .width = c(.5, .8, .95, .99, 1), slab_color = "black", alpha = 0.7, fatten_point = 2, interval_size_range = c(1, 2)) +
@@ -309,6 +311,51 @@ fle_bayes |>
     # , legend.title.position = "top"
   )) |>
   lemon::reposition_legend("center", panel = 'panel-2-2')
+```
+
+### Estimates of individual effects
+
+```{r}
+#| label: fig-individual-effects
+#| fig-cap: "Posterior distributions of individual effects $\\theta_i$ for each participant. The vertical dashed line marks the point of no effect, i.e., $\\theta_i = 0$."
+
+theta_i <- tidybayes::gather_draws(
+  fle_bayes
+  , theta[i]
+)
+
+# i as factor sorted by median of posterior distribution
+theta_i_ordered <- tidybayes::median_qi(theta_i) |>
+  mutate(
+    i = factor(
+      i
+      , labels = unique(i)[order(.value)]
+      , levels = unique(i)[order(.value)]
+    )
+  )
+
+theta_i |>
+  dplyr::mutate(
+    # i as factor sorted by median of posterior distribution
+    ID = factor(
+      i
+      , labels = unique(theta_i_ordered$i)[order(theta_i_ordered$.value)]
+      , levels = unique(theta_i_ordered$i)[order(theta_i_ordered$.value)]
+    )
+  ) |>
+  ggplot() +
+    aes(x = ID, y = .value) +
+    geom_hline(yintercept = 0, color = "black") +
+    stat_pointinterval(aes(color = after_stat(y) < 0), .width = c(.95), fatten_point = 2) +
+    scale_color_viridis_d(option = "B", begin = 0.9, end = 0.1) +
+    guides(color = "none", linewidth = "none") +
+    labs(y = expression(theta[i]), x = "Participant ID") +
+    papaja::theme_apa(base_size = 16) +
+    theme(
+      axis.line.y = element_blank()
+      , axis.ticks.y = element_blank()
+      , axis.text.y = element_blank()
+    )
 ```
 
 
