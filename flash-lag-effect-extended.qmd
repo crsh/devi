@@ -771,3 +771,66 @@ data.frame(priors = c(sigma_prior
    
 ```
 
+# Alternative dominance models
+## Log-normal distributed $\theta_i$
+
+We have now been tempted to return to the question of the most appropriate distribution over the positive domain. An alternative to the previously fitted truncated normal distribution is the log-normal distribution. We define the following model:
+
+$$
+\begin{aligned}
+y_{ij} & \sim \mathcal{N}(\theta_i, \sigma_\epsilon) \\ \\
+\theta_i & \sim \log \mathcal{N}(\mu_\theta, \sigma_\theta) \\
+\sigma_\epsilon^2 & \propto 1/\sigma_\epsilon^2 \\ \\
+\mu_\theta & = \ln \left( \frac{\bar{x}}{\sqrt{s^2+\bar{x}^2}} \right) \\
+\sigma_\theta & = \ln \left( \frac{s^2}{\bar{x}^2} + 1  \right) \\ \\
+\bar{x} & \sim \log \mathcal{N}(a_x, b_x) \\
+s & \sim \log \mathcal{N}(a_s, b_s)
+\end{aligned}
+$$
+
+In this model priors are put on the mean ($\bar{x}$) and the standard deviation ($s$) of the log-normal distribution. We chose this approach because we assume that expressing prior beliefs about the mean and standard deviation of $\theta_i$ is more intuitive than expressing prior beliefs about the parameters $\mu$ and $\sigma$ of the log-normal distribution.  
+
+```{r}
+#| label: fit-logN-model
+
+pse_logN_model <- readLines("./models/pse-dominance-logN.stan") |>
+  paste(collapse = "\n")
+
+fle_stan_logN_data <- list(
+  N = nrow(fle_data) |> as.integer()
+  , n_subjects = length(unique(fle_data$ID)) |> as.integer()
+  , id = as.integer(as.factor(fle_data$ID))
+  , y = fle_data$dva
+  
+  # Prior settings
+  , mean_logN_mu = 0.5
+  , mean_logN_sigma = 1
+  , sd_logN_mu = 0.5
+  , sd_logN_sigma = 1
+)
+
+fle_logN_bayes <- rstan::stan(
+  model_code = pse_logN_model
+  , data = fle_stan_logN_data
+  , iter = 1e5/4 + 1000
+  , warmup = 1000
+  , chains = 4
+  , cores = 4
+  , seed = 123
+)
+
+# model diagnostics
+str_post_logN <- data.frame(summary(fle_logN_bayes)$summary)
+check_hmc_diagnostics(fle_logN_bayes)
+```
+
+```{r}
+#| label: bayes-factor-logN
+
+logN_ml <- bridge_sampler(fle_logN_bayes, method = "warp3", repetitions = 30, silent = TRUE)
+bayes_factor(unconstrained_ml, logN_ml)
+bayes_factor(logN_ml, dominance_ml) -> bf_logN_dom
+```
+
+We still find decisive evidence in favor of an unconstrained distribution of $\theta_i$. As the log-normal model provides a better fit to the data compared to the model assuming a truncated normal distribution for $\theta_i$, the Bayes factor for the unconstrained model over the log-normal model is approximately 1/`r round(bf_logN_dom$bf_median_based,0)` of the Bayes factor for the unconstrained model over the truncated normal model.
+

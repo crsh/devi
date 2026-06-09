@@ -8,7 +8,7 @@
 
 <meta name="author" content="Frederik Aust">
 <meta name="author" content="Alex Holcombe">
-<meta name="dcterms.date" content="2026-06-01">
+<meta name="dcterms.date" content="2026-06-06">
 
 <title>Inidividual Differences Investigation for Flash Lag Effect</title>
 <style>
@@ -129,6 +129,10 @@ window.Quarto = {
   <li><a href="#bayes-factor-summary-table" id="toc-bayes-factor-summary-table" class="nav-link" data-scroll-target="#bayes-factor-summary-table">Bayes factor summary table</a></li>
   <li><a href="#prior-settings-for-sigma_theta" id="toc-prior-settings-for-sigma_theta" class="nav-link" data-scroll-target="#prior-settings-for-sigma_theta">Prior settings for <span class="math inline">\(\sigma_{\theta}\)</span></a></li>
   </ul></li>
+  <li><a href="#alternative-dominance-models" id="toc-alternative-dominance-models" class="nav-link" data-scroll-target="#alternative-dominance-models">Alternative dominance models</a>
+  <ul class="collapse">
+  <li><a href="#log-normal-distributed-theta_i" id="toc-log-normal-distributed-theta_i" class="nav-link" data-scroll-target="#log-normal-distributed-theta_i">Log-normal distributed <span class="math inline">\(\theta_i\)</span></a></li>
+  </ul></li>
   </ul>
 </nav>
 </div>
@@ -168,7 +172,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">June 1, 2026</p>
+      <p class="date">June 6, 2026</p>
     </div>
   </div>
   
@@ -333,11 +337,11 @@ p^{*}(\theta_i&lt;0) &amp; \sim \mathcal{N}(a_p, b_p) \\ \\
 <span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>unconstrained_joint_prior</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Warning: Removed 18153 rows containing non-finite outside the scale range
+<pre><code>Warning: Removed 18306 rows containing non-finite outside the scale range
 (`stat_density2d()`).</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Warning: Removed 18153 rows containing missing values or values outside the scale range
+<pre><code>Warning: Removed 18306 rows containing missing values or values outside the scale range
 (`geom_point()`).</code></pre>
 </div>
 <div class="cell-output-display">
@@ -710,7 +714,7 @@ Figure&nbsp;2: Posterior and prior density for the proportion of participants wi
 <div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>bayes_factor_10 <span class="ot">&lt;-</span> prior_density <span class="sc">/</span> posterior_density</span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>bayes_factor_10</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 143175</code></pre>
+<pre><code>[1] 163842.4</code></pre>
 </div>
 </div>
 <p>We find overwhelming evidence for the unconstrained population distribution. In other words, the assumption that noone exhibits a flash <em>lead</em> effect, seems highly implausible.</p>
@@ -883,9 +887,9 @@ Energy:</code></pre>
 <span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a><span class="fu">bayes_factor</span>(unconstrained_ml, dominance_ml)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Estimated Bayes factor (based on medians of log marginal likelihood estimates)
- in favor of x1 over x2: 68952027.35067
-Range of estimates: 64049164.55602 to 76217946.94596
-Interquartile range: 4282399.29219</code></pre>
+ in favor of x1 over x2: 69160338.66272
+Range of estimates: 65564857.43719 to 74806491.12872
+Interquartile range: 3341411.97335</code></pre>
 </div>
 </div>
 <p>Comparing to a strictly positive population distribution (truncated normal in this case), we find overwhelming evidence for an unconstrained population distribution, implying that some individuals could truly exhibit a flash lead effect. In other words, these results suggest that it is highly unlikely that no one exhibits a true lead effect.</p>
@@ -992,9 +996,9 @@ Energy:</code></pre>
 <span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a><span class="fu">bayes_factor</span>(unconstrained_ml, common_ml)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Estimated Bayes factor (based on medians of log marginal likelihood estimates)
- in favor of x1 over x2: 1384910385045.91138
-Range of estimates: 1382267502467.16919 to 1387270069365.84204
-Interquartile range: 2253221899.83423</code></pre>
+ in favor of x1 over x2: 1384645086879.17993
+Range of estimates: 1382345147292.13916 to 1388469612961.47949
+Interquartile range: 2418382975.17139</code></pre>
 </div>
 </div>
 <p>We find overwhelming evidence in favor of the unconstrained model over the common effect model. It therefore seems highly implausible that all participants share a common true effect of the same size, as models allowing for interindividual differences in true effects are a better fit for the data. These results also validate / support the study design, as interindividual differences in true effects were measureable.</p>
@@ -1106,9 +1110,9 @@ Energy:</code></pre>
 <span id="cb76-3"><a href="#cb76-3" aria-hidden="true" tabindex="-1"></a><span class="fu">bayes_factor</span>(unconstrained_ml, average_ml)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Estimated Bayes factor (based on medians of log marginal likelihood estimates)
- in favor of x1 over x2: 4651831424885.09668
-Range of estimates: 4636761511620.84668 to 4668722682563.24023
-Interquartile range: 8077851866.02441</code></pre>
+ in favor of x1 over x2: 4648353424964.65625
+Range of estimates: 4633692759518.69727 to 4665412512492.30176
+Interquartile range: 8064613200.91992</code></pre>
 </div>
 </div>
 </section>
@@ -1194,9 +1198,9 @@ number of samples.</code></pre>
 <div class="sourceCode cell-code" id="cb92"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bayes_factor</span>(unconstrained_ml, null_ml)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Estimated Bayes factor (based on medians of log marginal likelihood estimates)
- in favor of x1 over x2: 307834621758921415446626064640602.00000
-Range of estimates: 307219797968208821760002062626244.00000 to 308335823700413263242028022628228.00000
-Interquartile range: 508728581792954241408646460248.00000</code></pre>
+ in favor of x1 over x2: 307766149067403612948642428604688.00000
+Range of estimates: 307284311935183180480228206028082.00000 to 308620758135187831008882068462204.00000
+Interquartile range: 507305197249858905862826240260.00000</code></pre>
 </div>
 </div>
 </section>
@@ -1268,35 +1272,35 @@ Interquartile range: 508728581792954241408646460248.00000</code></pre>
 <td style="text-align: left;"><span class="math inline">\(3.25 \times 10^{-33}\)</span></td>
 <td style="text-align: left;">.00</td>
 <td style="text-align: left;">1.000</td>
-<td style="text-align: left;"><span class="math inline">\(3.76 \times 10^{-8}\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(4.12 \times 10^{-8}\)</span></td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Average null model</td>
 <td style="text-align: left;"><span class="math inline">\(2.15 \times 10^{-13}\)</span></td>
 <td style="text-align: left;">.00</td>
 <td style="text-align: left;">1.000</td>
-<td style="text-align: left;"><span class="math inline">\(3.78 \times 10^{-6}\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(3.18 \times 10^{-6}\)</span></td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Common model</td>
 <td style="text-align: left;"><span class="math inline">\(7.22 \times 10^{-13}\)</span></td>
 <td style="text-align: left;">.00</td>
 <td style="text-align: left;">1.000</td>
-<td style="text-align: left;"><span class="math inline">\(2.23 \times 10^{-7}\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(2.22 \times 10^{-7}\)</span></td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Dominance model</td>
 <td style="text-align: left;"><span class="math inline">\(1.45 \times 10^{-8}\)</span></td>
 <td style="text-align: left;">.00</td>
 <td style="text-align: left;">1.001</td>
-<td style="text-align: left;"><span class="math inline">\(1.28 \times 10^{-4}\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(1.11 \times 10^{-4}\)</span></td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Unconstrained model</td>
 <td style="text-align: left;"><span class="math inline">\(1.00\)</span></td>
 <td style="text-align: left;">&gt; .99</td>
 <td style="text-align: left;">1.000</td>
-<td style="text-align: left;"><span class="math inline">\(3.13 \times 10^{-6}\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(3.29 \times 10^{-6}\)</span></td>
 </tr>
 </tbody>
 </table>
@@ -1323,7 +1327,7 @@ Interquartile range: 508728581792954241408646460248.00000</code></pre>
 <span id="cb95-14"><a href="#cb95-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_viridis_d</span>(<span class="at">option =</span> <span class="st">"G"</span>, <span class="at">begin =</span> <span class="fl">0.1</span>, <span class="at">end =</span> <span class="fl">0.8</span>, <span class="at">aesthetics =</span> <span class="st">"fill"</span>) <span class="sc">+</span></span>
 <span id="cb95-15"><a href="#cb95-15" aria-hidden="true" tabindex="-1"></a>  papaja<span class="sc">::</span><span class="fu">theme_apa</span>(<span class="at">base_size =</span> <span class="dv">16</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Warning: Removed 27671 rows containing non-finite outside the scale range
+<pre><code>Warning: Removed 27850 rows containing non-finite outside the scale range
 (`stat_density()`).</code></pre>
 </div>
 <div class="cell-output-display">
@@ -1335,6 +1339,114 @@ Interquartile range: 508728581792954241408646460248.00000</code></pre>
 </div>
 </div>
 </div>
+</section>
+</section>
+<section id="alternative-dominance-models" class="level1">
+<h1>Alternative dominance models</h1>
+<section id="log-normal-distributed-theta_i" class="level2">
+<h2 class="anchored" data-anchor-id="log-normal-distributed-theta_i">Log-normal distributed <span class="math inline">\(\theta_i\)</span></h2>
+<p>We have now been tempted to return to the question of the most appropriate distribution over the positive domain. An alternative to the previously fitted truncated normal distribution is the log-normal distribution. We define the following model:</p>
+<p><span class="math display">\[
+\begin{aligned}
+y_{ij} &amp; \sim \mathcal{N}(\theta_i, \sigma_\epsilon) \\ \\
+\theta_i &amp; \sim \log \mathcal{N}(\mu_\theta, \sigma_\theta) \\
+\sigma_\epsilon^2 &amp; \propto 1/\sigma_\epsilon^2 \\ \\
+\mu_\theta &amp; = \ln \left( \frac{\bar{x}}{\sqrt{s^2+\bar{x}^2}} \right) \\
+\sigma_\theta &amp; = \ln \left( \frac{s^2}{\bar{x}^2} + 1  \right) \\ \\
+\bar{x} &amp; \sim \log \mathcal{N}(a_x, b_x) \\
+s &amp; \sim \log \mathcal{N}(a_s, b_s)
+\end{aligned}
+\]</span></p>
+<p>In this model priors are put on the mean (<span class="math inline">\(\bar{x}\)</span>) and the standard deviation (<span class="math inline">\(s\)</span>) of the log-normal distribution. We chose this approach because we assume that expressing prior beliefs about the mean and standard deviation of <span class="math inline">\(\theta_i\)</span> is more intuitive than expressing prior beliefs about the parameters <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\sigma\)</span> of the log-normal distribution.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb97"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb97-1"><a href="#cb97-1" aria-hidden="true" tabindex="-1"></a>pse_logN_model <span class="ot">&lt;-</span> <span class="fu">readLines</span>(<span class="st">"./models/pse-dominance-logN.stan"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb97-2"><a href="#cb97-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">paste</span>(<span class="at">collapse =</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb97-3"><a href="#cb97-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb97-4"><a href="#cb97-4" aria-hidden="true" tabindex="-1"></a>fle_stan_logN_data <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb97-5"><a href="#cb97-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">N =</span> <span class="fu">nrow</span>(fle_data) <span class="sc">|&gt;</span> <span class="fu">as.integer</span>()</span>
+<span id="cb97-6"><a href="#cb97-6" aria-hidden="true" tabindex="-1"></a>  , <span class="at">n_subjects =</span> <span class="fu">length</span>(<span class="fu">unique</span>(fle_data<span class="sc">$</span>ID)) <span class="sc">|&gt;</span> <span class="fu">as.integer</span>()</span>
+<span id="cb97-7"><a href="#cb97-7" aria-hidden="true" tabindex="-1"></a>  , <span class="at">id =</span> <span class="fu">as.integer</span>(<span class="fu">as.factor</span>(fle_data<span class="sc">$</span>ID))</span>
+<span id="cb97-8"><a href="#cb97-8" aria-hidden="true" tabindex="-1"></a>  , <span class="at">y =</span> fle_data<span class="sc">$</span>dva</span>
+<span id="cb97-9"><a href="#cb97-9" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb97-10"><a href="#cb97-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Prior settings</span></span>
+<span id="cb97-11"><a href="#cb97-11" aria-hidden="true" tabindex="-1"></a>  , <span class="at">mean_logN_mu =</span> <span class="fl">0.5</span></span>
+<span id="cb97-12"><a href="#cb97-12" aria-hidden="true" tabindex="-1"></a>  , <span class="at">mean_logN_sigma =</span> <span class="dv">1</span></span>
+<span id="cb97-13"><a href="#cb97-13" aria-hidden="true" tabindex="-1"></a>  , <span class="at">sd_logN_mu =</span> <span class="fl">0.5</span></span>
+<span id="cb97-14"><a href="#cb97-14" aria-hidden="true" tabindex="-1"></a>  , <span class="at">sd_logN_sigma =</span> <span class="dv">1</span></span>
+<span id="cb97-15"><a href="#cb97-15" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb97-16"><a href="#cb97-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb97-17"><a href="#cb97-17" aria-hidden="true" tabindex="-1"></a>fle_logN_bayes <span class="ot">&lt;-</span> rstan<span class="sc">::</span><span class="fu">stan</span>(</span>
+<span id="cb97-18"><a href="#cb97-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">model_code =</span> pse_logN_model</span>
+<span id="cb97-19"><a href="#cb97-19" aria-hidden="true" tabindex="-1"></a>  , <span class="at">data =</span> fle_stan_logN_data</span>
+<span id="cb97-20"><a href="#cb97-20" aria-hidden="true" tabindex="-1"></a>  , <span class="at">iter =</span> <span class="fl">1e5</span><span class="sc">/</span><span class="dv">4</span> <span class="sc">+</span> <span class="dv">1000</span></span>
+<span id="cb97-21"><a href="#cb97-21" aria-hidden="true" tabindex="-1"></a>  , <span class="at">warmup =</span> <span class="dv">1000</span></span>
+<span id="cb97-22"><a href="#cb97-22" aria-hidden="true" tabindex="-1"></a>  , <span class="at">chains =</span> <span class="dv">4</span></span>
+<span id="cb97-23"><a href="#cb97-23" aria-hidden="true" tabindex="-1"></a>  , <span class="at">cores =</span> <span class="dv">4</span></span>
+<span id="cb97-24"><a href="#cb97-24" aria-hidden="true" tabindex="-1"></a>  , <span class="at">seed =</span> <span class="dv">123</span></span>
+<span id="cb97-25"><a href="#cb97-25" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>WARNING: Rtools is required to build R packages, but is not currently installed.
+
+Please download and install the appropriate version of Rtools for 4.5.1 from
+https://cran.r-project.org/bin/windows/Rtools/.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Trying to compile a simple C file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Running "C:/PROGRA~1/R/R-45~1.1/bin/x64/Rcmd.exe" SHLIB foo.c
+using C compiler: 'gcc.exe (GCC) 14.3.0'
+gcc  -I"C:/PROGRA~1/R/R-45~1.1/include" -DNDEBUG   -I"C:/Users/User/AppData/Local/R/win-library/4.5/Rcpp/include/"  -I"C:/Users/User/AppData/Local/R/win-library/4.5/RcppEigen/include/"  -I"C:/Users/User/AppData/Local/R/win-library/4.5/RcppEigen/include/unsupported"  -I"C:/Users/User/AppData/Local/R/win-library/4.5/BH/include" -I"C:/Users/User/AppData/Local/R/win-library/4.5/StanHeaders/include/src/"  -I"C:/Users/User/AppData/Local/R/win-library/4.5/StanHeaders/include/"  -I"C:/Users/User/AppData/Local/R/win-library/4.5/RcppParallel/include/" -DRCPP_PARALLEL_USE_TBB=1 -I"C:/Users/User/AppData/Local/R/win-library/4.5/rstan/include" -DEIGEN_NO_DEBUG  -DBOOST_DISABLE_ASSERTS  -DBOOST_PENDING_INTEGER_LOG2_HPP  -DSTAN_THREADS  -DUSE_STANC3 -DSTRICT_R_HEADERS  -DBOOST_PHOENIX_NO_VARIADIC_EXPRESSION  -D_HAS_AUTO_PTR_ETC=0  -include "C:/Users/User/AppData/Local/R/win-library/4.5/StanHeaders/include/stan/math/prim/fun/Eigen.hpp"  -D_REENTRANT -DRCPP_PARALLEL_USE_TBB=1    -I"C:/rtools45/x86_64-w64-mingw32.static.posix/include"      -O2 -Wall -std=gnu2x  -mfpmath=sse -msse2 -mstackrealign   -c foo.c -o foo.o
+In file included from &lt;command-line&gt;:
+C:/Users/User/AppData/Local/R/win-library/4.5/StanHeaders/include/stan/math/prim/fun/Eigen.hpp:3:10: fatal error: stdexcept: No such file or directory
+    3 | #include &lt;stdexcept&gt;
+      |          ^~~~~~~~~~~
+compilation terminated.
+make: *** [C:/PROGRA~1/R/R-45~1.1/etc/x64/Makeconf:289: foo.o] Error 1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>WARNING: Rtools is required to build R packages, but is not currently installed.
+
+Please download and install the appropriate version of Rtools for 4.5.1 from
+https://cran.r-project.org/bin/windows/Rtools/.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb102"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb102-1"><a href="#cb102-1" aria-hidden="true" tabindex="-1"></a><span class="co"># model diagnostics</span></span>
+<span id="cb102-2"><a href="#cb102-2" aria-hidden="true" tabindex="-1"></a>str_post_logN <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">summary</span>(fle_logN_bayes)<span class="sc">$</span>summary)</span>
+<span id="cb102-3"><a href="#cb102-3" aria-hidden="true" tabindex="-1"></a><span class="fu">check_hmc_diagnostics</span>(fle_logN_bayes)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Divergences:</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>0 of 100000 iterations ended with a divergence.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Tree depth:</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>0 of 100000 iterations saturated the maximum tree depth of 10.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Energy:</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>E-BFMI indicated no pathological behavior.</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb109"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb109-1"><a href="#cb109-1" aria-hidden="true" tabindex="-1"></a>logN_ml <span class="ot">&lt;-</span> <span class="fu">bridge_sampler</span>(fle_logN_bayes, <span class="at">method =</span> <span class="st">"warp3"</span>, <span class="at">repetitions =</span> <span class="dv">30</span>, <span class="at">silent =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb109-2"><a href="#cb109-2" aria-hidden="true" tabindex="-1"></a><span class="fu">bayes_factor</span>(unconstrained_ml, logN_ml)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Estimated Bayes factor (based on medians of log marginal likelihood estimates)
+ in favor of x1 over x2: 241230.62149
+Range of estimates: 233822.40346 to 248206.38260
+Interquartile range: 3523.66338</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb111"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb111-1"><a href="#cb111-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bayes_factor</span>(logN_ml, dominance_ml) <span class="ot">-&gt;</span> bf_logN_dom</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We still find decisive evidence in favor of an unconstrained distribution of <span class="math inline">\(\theta_i\)</span>. As the log-normal model provides a better fit to the data compared to the model assuming a truncated normal distribution for <span class="math inline">\(\theta_i\)</span>, the Bayes factor for the unconstrained model over the log-normal model is approximately 1/287 of the Bayes factor for the unconstrained model over the truncated normal model.</p>
 </section>
 </section>
 
